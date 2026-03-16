@@ -1,0 +1,1188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Dukaandaari — Overview</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="CSS/style.css"/>
+  <style>
+    /* ===== UDHAAR STYLES ===== */
+    .udhaar-card {
+      background: #fff;
+      border-radius: 14px;
+      padding: 24px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+      border: 1px solid #f1f5f9;
+    }
+
+    .udhaar-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 14px 16px;
+      border-radius: 10px;
+      margin-bottom: 8px;
+      border: 1.5px solid #f1f5f9;
+      background: #fafafa;
+      transition: all 0.2s;
+      position: relative;
+    }
+
+    .udhaar-row:hover { border-color: #e2e8f0; background: #f8fafc; }
+
+    /* Defaulter highlight */
+    .udhaar-row.defaulter {
+      background: #fff5f5;
+      border-color: #fecaca;
+      animation: pulse-red 2.5s infinite;
+    }
+
+    @keyframes pulse-red {
+      0%, 100% { border-color: #fecaca; }
+      50%       { border-color: #f87171; }
+    }
+
+    .udhaar-row.warning {
+      background: #fffbeb;
+      border-color: #fde68a;
+    }
+
+    .defaulter-tag {
+      position: absolute;
+      top: -9px;
+      left: 14px;
+      background: #ef4444;
+      color: white;
+      font-size: 10px;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 999px;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    .warning-tag {
+      position: absolute;
+      top: -9px;
+      left: 14px;
+      background: #f59e0b;
+      color: white;
+      font-size: 10px;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 999px;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    .udhaar-avatar {
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      background: #e0f2fe;
+      color: #0369a1;
+      font-size: 15px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .udhaar-avatar.red    { background: #fee2e2; color: #dc2626; }
+    .udhaar-avatar.orange { background: #ffedd5; color: #c2410c; }
+
+    .udhaar-name  { font-size: 14px; font-weight: 700; color: #111827; }
+    .udhaar-meta  { font-size: 11px; color: #9ca3af; margin-top: 1px; }
+    .udhaar-amount {
+      margin-left: auto;
+      font-size: 16px;
+      font-weight: 800;
+      color: #dc2626;
+      flex-shrink: 0;
+    }
+
+    .udhaar-actions {
+      display: flex;
+      gap: 6px;
+      flex-shrink: 0;
+    }
+
+    .u-btn {
+      padding: 5px 10px;
+      border-radius: 7px;
+      font-size: 11px;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+      transition: all 0.2s;
+      font-family: Inter, sans-serif;
+    }
+
+    .u-btn-green  { background: #dcfce7; color: #15803d; }
+    .u-btn-green:hover  { background: #bbf7d0; }
+    .u-btn-blue   { background: #e0f2fe; color: #0369a1; }
+    .u-btn-blue:hover   { background: #bae6fd; }
+    .u-btn-gray   { background: #f3f4f6; color: #374151; }
+    .u-btn-gray:hover   { background: #e5e7eb; }
+
+    .udhaar-note {
+      font-size: 11px;
+      color: #6b7280;
+      font-style: italic;
+      margin-top: 3px;
+    }
+
+    .udhaar-summary {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+
+    .udhaar-sum-card {
+      background: #f9fafb;
+      border-radius: 10px;
+      padding: 12px 16px;
+      border: 1px solid #f1f5f9;
+    }
+
+    .udhaar-sum-label { font-size: 11px; color: #9ca3af; font-weight: 600; margin-bottom: 4px; }
+    .udhaar-sum-value { font-size: 20px; font-weight: 800; color: #111827; }
+    .udhaar-sum-value.red    { color: #dc2626; }
+    .udhaar-sum-value.orange { color: #d97706; }
+
+    /* Add Udhaar Modal */
+    .udhaar-modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.45);
+      z-index: 9999;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .udhaar-modal-box {
+      background: #fff;
+      border-radius: 18px;
+      padding: 26px;
+      width: 100%;
+      max-width: 400px;
+      margin: 0 16px;
+      box-shadow: 0 24px 64px rgba(0,0,0,0.18);
+    }
+
+    .udhaar-modal-title {
+      font-size: 17px;
+      font-weight: 800;
+      color: #111827;
+      margin-bottom: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .udhaar-modal-close {
+      background: none;
+      border: none;
+      font-size: 20px;
+      color: #9ca3af;
+      cursor: pointer;
+    }
+
+    .u-form-label {
+      display: block;
+      font-size: 12px;
+      font-weight: 600;
+      color: #374151;
+      margin-bottom: 5px;
+    }
+
+    .u-form-input {
+      width: 100%;
+      padding: 10px 13px;
+      border: 1.5px solid #e5e7eb;
+      border-radius: 9px;
+      font-size: 13px;
+      color: #111827;
+      outline: none;
+      margin-bottom: 13px;
+      box-sizing: border-box;
+      font-family: Inter, sans-serif;
+      transition: border 0.2s, box-shadow 0.2s;
+    }
+
+    .u-form-input:focus {
+      border-color: #06b6d4;
+      box-shadow: 0 0 0 3px rgba(6,182,212,0.12);
+    }
+
+    /* Partial payment modal */
+    #partialModal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.45); z-index: 10000; align-items: center; justify-content: center; }
+    #notesModal   { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.45); z-index: 10000; align-items: center; justify-content: center; }
+    #sellModal    { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.45); z-index: 10000; align-items: center; justify-content: center; }
+
+    .sell-modal-box {
+      background: #fff;
+      border-radius: 20px;
+      padding: 28px;
+      width: 100%;
+      max-width: 520px;
+      margin: 0 16px;
+      box-shadow: 0 24px 64px rgba(0,0,0,0.2);
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+
+    .sell-product-row {
+      display: grid;
+      grid-template-columns: 1fr 90px 90px 36px;
+      gap: 8px;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+
+    .sell-product-row select,
+    .sell-product-row input {
+      padding: 8px 10px;
+      border: 1.5px solid #e5e7eb;
+      border-radius: 8px;
+      font-size: 13px;
+      color: #111827;
+      outline: none;
+      font-family: Inter, sans-serif;
+      transition: border 0.2s;
+    }
+
+    .sell-product-row select:focus,
+    .sell-product-row input:focus {
+      border-color: #06b6d4;
+      box-shadow: 0 0 0 3px rgba(6,182,212,0.1);
+    }
+
+    .sell-remove-btn {
+      background: #fee2e2;
+      color: #dc2626;
+      border: none;
+      border-radius: 8px;
+      width: 34px;
+      height: 34px;
+      font-size: 16px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.2s;
+    }
+
+    .sell-remove-btn:hover { background: #fecaca; }
+
+    .sell-total-box {
+      background: #f0fdf4;
+      border: 1.5px solid #bbf7d0;
+      border-radius: 10px;
+      padding: 12px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin: 16px 0;
+    }
+
+    .sell-total-label { font-size: 13px; color: #374151; font-weight: 600; }
+    .sell-total-value { font-size: 22px; font-weight: 800; color: #15803d; }
+
+    .sales-log-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 14px;
+      border-radius: 8px;
+      background: #f9fafb;
+      border: 1px solid #f1f5f9;
+      margin-bottom: 6px;
+      font-size: 13px;
+    }
+
+    .sales-log-time  { color: #9ca3af; font-size: 11px; margin-top: 2px; }
+    .sales-log-amount { font-weight: 800; color: #059669; font-size: 14px; }
+  </style>
+</head>
+<body>
+
+  <!-- ===== SIDEBAR ===== -->
+  <aside class="sidebar" id="tour-sidebar">
+    <div class="sidebar-logo">
+      <img
+        src="high-res-omg.png"
+        alt="Dukaandaari"
+        style="width: 170px; height:auto; object-fit:contain; border-radius:2px; position: relative; left: 10px;"
+      />
+    </div>
+    <div class="sidebar-user">
+      <div class="sidebar-avatar">C</div>
+      <div>
+        <p>Welcome back,</p>
+        <p>Hi, Chaitanya! 👋</p>
+      </div>
+    </div>
+    <nav class="sidebar-nav">
+      <p class="sidebar-section-label">Main Menu</p>
+      <a href="index.html"       class="sidebar-link active"><span class="icon">📊</span> Overview</a>
+      <a href="inventory.html"   class="sidebar-link"><span class="icon">📦</span> Inventory Tracker</a>
+      <a href="sales.html"       class="sidebar-link"><span class="icon">📈</span> Sales Analytics</a>
+      <a href="ai-insights.html" class="sidebar-link"><span class="icon">🤖</span> AI Insights</a>
+      <p class="sidebar-section-label">Alerts</p>
+      <a href="#" class="sidebar-link">
+        <span class="icon">💬</span> WhatsApp Alerts
+        <span class="sidebar-badge">3</span>
+      </a>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="status-dot"></div>
+      <p>System Online</p>
+    </div>
+  </aside>
+
+  <!-- ===== MAIN CONTENT ===== -->
+  <main class="main">
+
+    <!-- Top Bar -->
+    <div class="topbar">
+      <div>
+        <h2>Overview</h2>
+        <p>Monday, 16 March 2026</p>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px;">
+        <button class="btn btn-ghost" onclick="sessionStorage.removeItem('tourDone'); startTutorial();" style="font-size:12px;">🎯 Replay Tour</button>
+        <button class="btn btn-ghost" onclick="toggleLanguage();" style="font-size:12px;">🌐 हिंदी</button>
+        <button class="btn btn-cyan" id="openSellBtn" style="font-size:13px;">🛒 Sell Item</button>
+        <button class="btn btn-green" onclick="sendWhatsAppAlert()">💬 WhatsApp Alert</button>
+        <div class="sidebar-avatar">C</div>
+      </div>
+    </div>
+
+    <div class="page-content">
+
+      <!-- ===== STAT CARDS — TOUR STEP 1 ===== -->
+      <div class="stat-grid" id="tour-stats">
+        <div class="stat-card">
+          <div class="stat-card-header">
+            <p>Total Products</p>
+            <div class="stat-icon blue">📦</div>
+          </div>
+          <div class="stat-value" id="totalProductsValue">248</div>
+          <div class="stat-change up" id="totalProductsChange">↑ 12 added this week</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-card-header">
+            <p>Low Stock Items</p>
+            <div class="stat-icon orange">⚠️</div>
+          </div>
+          <div class="stat-value" id="lowStockValue">14</div>
+          <div class="stat-change warn" id="lowStockChange">↑ 3 more than yesterday</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-card-header">
+            <p>Today's Sales</p>
+            <div class="stat-icon cyan">💰</div>
+          </div>
+          <div class="stat-value" id="todaySalesValue">₹0</div>
+          <div class="stat-change up" id="todaySalesChange">No sales yet today</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-card-header">
+            <p>Monthly Revenue</p>
+            <div class="stat-icon green">📅</div>
+          </div>
+          <div class="stat-value" id="monthlyRevenueValue">₹2.1L</div>
+          <div class="stat-change up" id="monthlyRevenueChange">↑ 8% vs last month</div>
+        </div>
+      </div>
+
+      <!-- ===== WEEKLY SALES CHART — TOUR STEP 2 ===== -->
+      <div class="card" id="tour-chart">
+        <div class="card-header">
+          <div>
+            <div class="card-title">Weekly Sales Performance</div>
+            <div class="card-subtitle">Last 7 days revenue breakdown</div>
+          </div>
+          <span class="badge badge-cyan">This Week</span>
+        </div>
+        <canvas id="salesChart" height="90"></canvas>
+      </div>
+
+      <!-- ===== BOTTOM ROW ===== -->
+      <div class="two-col">
+
+        <!-- Inventory Table — TOUR STEP 3 -->
+        <div class="card" id="tour-inventory">
+          <div class="card-header">
+            <div>
+              <div class="card-title">Inventory Status</div>
+              <div class="card-subtitle">Items needing attention</div>
+            </div>
+            <a href="inventory.html" class="card-link">View All →</a>
+          </div>
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Product</th>
+                <th>Stock</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td style="font-weight:600;color:#111827">Tata Salt 1kg</td>
+                <td>42 units</td>
+                <td><span class="badge badge-green">In Stock</span></td>
+              </tr>
+              <tr>
+                <td style="font-weight:600;color:#111827">Amul Butter 500g</td>
+                <td>8 units</td>
+                <td><span class="badge badge-orange">Low Stock</span></td>
+              </tr>
+              <tr>
+                <td style="font-weight:600;color:#111827">Parle-G 800g</td>
+                <td>3 units</td>
+                <td><span class="badge badge-red">Critical</span></td>
+              </tr>
+              <tr>
+                <td style="font-weight:600;color:#111827">Surf Excel 1kg</td>
+                <td>29 units</td>
+                <td><span class="badge badge-green">In Stock</span></td>
+              </tr>
+              <tr>
+                <td style="font-weight:600;color:#111827">Maggi Noodles</td>
+                <td>6 units</td>
+                <td><span class="badge badge-orange">Low Stock</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Donut Chart -->
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <div class="card-title">Top Selling Categories</div>
+              <div class="card-subtitle">Revenue share by category</div>
+            </div>
+            <a href="sales.html" class="card-link">Details →</a>
+          </div>
+          <div style="display:flex;align-items:center;gap:24px;">
+            <canvas id="categoryChart" width="160" height="160"></canvas>
+            <div class="legend">
+              <div class="legend-item"><div class="legend-dot" style="background:#06b6d4"></div><span class="legend-label">Dairy & Eggs</span><span class="legend-pct">32%</span></div>
+              <div class="legend-item"><div class="legend-dot" style="background:#34d399"></div><span class="legend-label">Snacks</span><span class="legend-pct">24%</span></div>
+              <div class="legend-item"><div class="legend-dot" style="background:#60a5fa"></div><span class="legend-label">Staples</span><span class="legend-pct">20%</span></div>
+              <div class="legend-item"><div class="legend-dot" style="background:#a78bfa"></div><span class="legend-label">Beverages</span><span class="legend-pct">14%</span></div>
+              <div class="legend-item"><div class="legend-dot" style="background:#fb923c"></div><span class="legend-label">Personal Care</span><span class="legend-pct">10%</span></div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- ===== UDHAAR SECTION ===== -->
+      <div class="udhaar-card">
+
+        <!-- Header -->
+        <div class="card-header">
+          <div>
+            <div class="card-title">📒 Udhaar Khata</div>
+            <div class="card-subtitle">Credit tracker — highlighted names haven't paid back on time</div>
+          </div>
+          <button class="btn btn-cyan" id="openUdhaarBtn" style="font-size:13px;">+ Add Udhaar</button>
+        </div>
+
+        <!-- Summary Row -->
+        <div class="udhaar-summary">
+          <div class="udhaar-sum-card">
+            <div class="udhaar-sum-label">Total Outstanding</div>
+            <div class="udhaar-sum-value red" id="totalUdhaar">—</div>
+          </div>
+          <div class="udhaar-sum-card">
+            <div class="udhaar-sum-label">People with Udhaar</div>
+            <div class="udhaar-sum-value" id="totalPeople">—</div>
+          </div>
+          <div class="udhaar-sum-card">
+            <div class="udhaar-sum-label">Defaulters</div>
+            <div class="udhaar-sum-value orange" id="totalDefaulters">—</div>
+          </div>
+        </div>
+
+        <!-- Udhaar List -->
+        <div id="udhaarList"></div>
+
+      </div>
+
+      <!-- ===== AI INSIGHT BANNER — TOUR STEP 4 ===== -->
+      <div class="ai-banner" id="tour-ai">
+        <div class="ai-banner-left">
+          <div class="ai-banner-icon">🤖</div>
+          <div>
+            <div class="ai-banner-title">AI Insight of the Day</div>
+            <div class="ai-banner-text">
+              "Parle-G and Amul Butter are critically low. Based on your sales pattern, you'll run out by tomorrow evening. Reorder now."
+            </div>
+          </div>
+        </div>
+        <a href="ai-insights.html" class="btn btn-cyan">Ask AI →</a>
+      </div>
+
+      <!-- ===== TODAY'S SALES LOG ===== -->
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <div class="card-title">🧾 Today's Sales Log</div>
+            <div class="card-subtitle">All transactions recorded today</div>
+          </div>
+          <div style="display:flex;align-items:center;gap:10px;">
+            <span style="font-size:13px;color:#6b7280;">Total: <strong id="logTotalAmt" style="color:#059669;">₹0</strong></span>
+            <span class="badge badge-cyan" id="logTotalCount">0 sales</span>
+          </div>
+        </div>
+        <div id="salesLog">
+          <div style="text-align:center;padding:28px;color:#9ca3af;font-size:13px;">
+            No sales recorded yet today. Click <strong>Sell Item</strong> to start!
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- ===== ADD UDHAAR MODAL ===== -->
+  <div class="udhaar-modal-overlay" id="udhaarModal">
+    <div class="udhaar-modal-box">
+      <div class="udhaar-modal-title">
+        📒 Add New Udhaar
+        <button class="udhaar-modal-close" id="closeUdhaarBtn">✕</button>
+      </div>
+      <label class="u-form-label">Customer Name</label>
+      <input id="uName" type="text" class="u-form-input" placeholder="e.g. Ramesh Kumar"/>
+      <label class="u-form-label">Amount (₹)</label>
+      <input id="uAmount" type="number" class="u-form-input" placeholder="e.g. 350" min="1"/>
+      <label class="u-form-label">Date of Credit</label>
+      <input id="uDate" type="date" class="u-form-input"/>
+      <label class="u-form-label">Note (optional)</label>
+      <input id="uNote" type="text" class="u-form-input" placeholder="e.g. Milk + bread for 3 days"/>
+      <button class="btn btn-cyan" id="submitUdhaarBtn" style="width:100%;justify-content:center;margin-top:4px;">
+        Add to Khata
+      </button>
+    </div>
+  </div>
+
+  <!-- ===== PARTIAL PAYMENT MODAL ===== -->
+  <div id="partialModal">
+    <div class="udhaar-modal-box">
+      <div class="udhaar-modal-title">
+        💸 Add Partial Payment
+        <button class="udhaar-modal-close" onclick="closePartialModal()">✕</button>
+      </div>
+      <p id="partialPersonName" style="font-size:13px;color:#6b7280;margin-bottom:14px;"></p>
+      <label class="u-form-label">Amount Paid (₹)</label>
+      <input id="partialAmount" type="number" class="u-form-input" placeholder="Enter amount paid" min="1"/>
+      <button class="btn btn-cyan" onclick="submitPartial()" style="width:100%;justify-content:center;">
+        Record Payment
+      </button>
+    </div>
+  </div>
+
+  <!-- ===== NOTES MODAL ===== -->
+  <div id="notesModal">
+    <div class="udhaar-modal-box">
+      <div class="udhaar-modal-title">
+        📝 Edit Note
+        <button class="udhaar-modal-close" onclick="closeNotesModal()">✕</button>
+      </div>
+      <p id="notesPersonName" style="font-size:13px;color:#6b7280;margin-bottom:14px;"></p>
+      <label class="u-form-label">Note</label>
+      <input id="notesText" type="text" class="u-form-input" placeholder="Add a note about this person..."/>
+      <button class="btn btn-cyan" onclick="submitNote()" style="width:100%;justify-content:center;">
+        Save Note
+      </button>
+    </div>
+  </div>
+
+  <!-- ===== SELL MODAL ===== -->
+  <div id="sellModal">
+    <div class="sell-modal-box">
+
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;">
+        <div>
+          <div style="font-size:17px;font-weight:800;color:#111827;">🛒 Sell Items</div>
+          <div style="font-size:12px;color:#9ca3af;margin-top:2px;">Select products and quantity to record a sale</div>
+        </div>
+        <button id="closeSellBtn" style="background:none;border:none;font-size:20px;color:#9ca3af;cursor:pointer;">✕</button>
+      </div>
+
+      <!-- Column Headers -->
+      <div style="display:grid;grid-template-columns:1fr 90px 90px 36px;gap:8px;margin-bottom:6px;">
+        <div style="font-size:11px;font-weight:600;color:#6b7280;padding-left:4px;">PRODUCT</div>
+        <div style="font-size:11px;font-weight:600;color:#6b7280;padding-left:4px;">QTY</div>
+        <div style="font-size:11px;font-weight:600;color:#6b7280;padding-left:4px;">PRICE</div>
+        <div></div>
+      </div>
+
+      <!-- Product Rows -->
+      <div id="sellRows"></div>
+
+      <!-- Add Product Button -->
+      <button id="addSellRowBtn" style="width:100%;padding:9px;border:1.5px dashed #e5e7eb;border-radius:8px;background:transparent;color:#6b7280;font-size:13px;font-weight:500;cursor:pointer;margin-bottom:4px;font-family:Inter,sans-serif;transition:all 0.2s;">
+        + Add Another Product
+      </button>
+
+      <!-- Total -->
+      <div class="sell-total-box">
+        <span class="sell-total-label">Total Amount</span>
+        <span class="sell-total-value" id="sellTotal">₹0</span>
+      </div>
+
+      <!-- Confirm Button -->
+      <button id="confirmSellBtn" class="btn btn-cyan" style="width:100%;justify-content:center;font-size:14px;padding:12px;">
+        ✓ Confirm Sale
+      </button>
+
+    </div>
+  </div>
+
+  <!-- ===== TOAST ===== -->
+  <div id="uToast" style="display:none;position:fixed;bottom:24px;right:24px;color:white;padding:12px 20px;border-radius:12px;font-size:13px;font-weight:500;z-index:99999;font-family:Inter,sans-serif;box-shadow:0 8px 24px rgba(0,0,0,0.15);"></div>
+
+  <!-- ===== SCRIPTS ===== -->
+  <script src="JS/state.js"></script>
+  <script src="JS/charts.js"></script>
+  <script src="JS/whatsapp.js"></script>
+  <script src="JS/translations.js"></script>
+  <script src="JS/tutorial.js"></script>
+
+  <script>
+    // ---- Auth guard ----
+    if (!sessionStorage.getItem("loggedIn")) {
+      window.location.href = "login.html";
+    }
+
+    // ---- Build charts ----
+    buildWeeklySalesChart("salesChart");
+    buildCategoryDonut("categoryChart");
+
+    // ---- Start tutorial ----
+    setTimeout(() => startTutorial(), 600);
+
+    // =============================================
+    // ===== UDHAAR LOGIC =====
+    // =============================================
+
+    // Sample starter data
+    let udhaarData = [
+      { id: 1, name: "Ramesh Kumar",   amount: 850,  date: daysAgo(18), note: "Milk + eggs", paid: false },
+      { id: 2, name: "Sunita Devi",    amount: 320,  date: daysAgo(12), note: "Biscuits + tea", paid: false },
+      { id: 3, name: "Pappu Yadav",    amount: 2400, date: daysAgo(22), note: "Monthly grocery", paid: false },
+      { id: 4, name: "Meena Sharma",   amount: 150,  date: daysAgo(8),  note: "Bread + butter", paid: false },
+      { id: 5, name: "Raju Bhai",      amount: 3100, date: daysAgo(17), note: "Bulk order", paid: false },
+    ];
+
+    let nextId = 6;
+    let activePartialId = null;
+    let activeNotesId   = null;
+
+    // ---- Helper: date X days ago ----
+    function daysAgo(n) {
+      const d = new Date();
+      d.setDate(d.getDate() - n);
+      return d.toISOString().split("T")[0];
+    }
+
+    // ---- Helper: days since date ----
+    function daysSince(dateStr) {
+      const now  = new Date();
+      const then = new Date(dateStr);
+      return Math.floor((now - then) / (1000 * 60 * 60 * 24));
+    }
+
+    // ---- Defaulter logic ----
+    // High amount (>=2000) → defaulter after 15 days
+    // Low amount  (<500)   → defaulter after 40 days
+    // Mid amount  (500-1999) → defaulter after 30 days
+    // Warning = 75% of threshold reached
+    function getStatus(amount, dateStr) {
+      const days      = daysSince(dateStr);
+      let threshold, warnAt;
+
+      if (amount >= 2000)      { threshold = 15; warnAt = 11; }
+      else if (amount < 500)   { threshold = 40; warnAt = 30; }
+      else                     { threshold = 30; warnAt = 22; }
+
+      if (days >= threshold) return "defaulter";
+      if (days >= warnAt)    return "warning";
+      return "normal";
+    }
+
+    // ---- Render udhaar list ----
+    function renderUdhaar() {
+      const list = document.getElementById("udhaarList");
+      const active = udhaarData.filter(u => !u.paid);
+
+      if (!active.length) {
+        list.innerHTML = `<div style="text-align:center;padding:32px;color:#9ca3af;font-size:13px;">🎉 No pending udhaar! All clear.</div>`;
+        updateSummary(active);
+        return;
+      }
+
+      // Sort: defaulters first, then warnings, then normal
+      const sorted = [...active].sort((a, b) => {
+        const order = { defaulter: 0, warning: 1, normal: 2 };
+        return order[getStatus(a.amount, a.date)] - order[getStatus(b.amount, b.date)];
+      });
+
+      list.innerHTML = sorted.map(u => {
+        const status = getStatus(u.amount, u.date);
+        const days   = daysSince(u.date);
+        const initials = u.name.split(" ").map(w => w[0]).join("").toUpperCase().slice(0, 2);
+        const avatarClass = status === "defaulter" ? "red" : status === "warning" ? "orange" : "";
+        const rowClass    = status === "defaulter" ? "defaulter" : status === "warning" ? "warning" : "";
+
+        let tag = "";
+        if (status === "defaulter") tag = `<div class="defaulter-tag">⚠ Defaulter</div>`;
+        if (status === "warning")   tag = `<div class="warning-tag">⏰ Overdue Soon</div>`;
+
+        return `
+          <div class="udhaar-row ${rowClass}" id="urow-${u.id}">
+            ${tag}
+            <div class="udhaar-avatar ${avatarClass}">${initials}</div>
+            <div style="flex:1;min-width:0;">
+              <div class="udhaar-name">${u.name}</div>
+              <div class="udhaar-meta">${days} days ago · ${u.date}</div>
+              ${u.note ? `<div class="udhaar-note">"${u.note}"</div>` : ""}
+            </div>
+            <div class="udhaar-amount">₹${u.amount.toLocaleString("en-IN")}</div>
+            <div class="udhaar-actions">
+              <button class="u-btn u-btn-blue"  onclick="openPartial(${u.id})">💸 Partial</button>
+              <button class="u-btn u-btn-gray"  onclick="openNotes(${u.id})">📝 Note</button>
+              <button class="u-btn u-btn-green" onclick="markPaid(${u.id})">✓ Paid</button>
+            </div>
+          </div>`;
+      }).join("");
+
+      updateSummary(active);
+    }
+
+    // ---- Update summary cards ----
+    function updateSummary(active) {
+      const total      = active.reduce((s, u) => s + u.amount, 0);
+      const defaulters = active.filter(u => getStatus(u.amount, u.date) === "defaulter").length;
+      document.getElementById("totalUdhaar").textContent    = "₹" + total.toLocaleString("en-IN");
+      document.getElementById("totalPeople").textContent    = active.length;
+      document.getElementById("totalDefaulters").textContent = defaulters;
+    }
+
+    // ---- Mark as paid ----
+    function markPaid(id) {
+      const u = udhaarData.find(x => x.id === id);
+      if (!u) return;
+      u.paid = true;
+      renderUdhaar();
+      showUToast(`✅ ${u.name} marked as paid!`, "#059669");
+    }
+
+    // ---- Partial payment ----
+    function openPartial(id) {
+      activePartialId = id;
+      const u = udhaarData.find(x => x.id === id);
+      document.getElementById("partialPersonName").textContent = `${u.name} — Current balance: ₹${u.amount.toLocaleString("en-IN")}`;
+      document.getElementById("partialAmount").value = "";
+      document.getElementById("partialModal").style.display = "flex";
+    }
+
+    function closePartialModal() {
+      document.getElementById("partialModal").style.display = "none";
+      activePartialId = null;
+    }
+
+    function submitPartial() {
+      const paid = parseInt(document.getElementById("partialAmount").value);
+      if (isNaN(paid) || paid <= 0) { showUToast("⚠️ Enter a valid amount", "#d97706"); return; }
+      const u = udhaarData.find(x => x.id === activePartialId);
+      if (!u) return;
+      if (paid >= u.amount) {
+        u.paid = true;
+        showUToast(`✅ ${u.name} fully paid!`, "#059669");
+      } else {
+        u.amount -= paid;
+        showUToast(`💸 ₹${paid} recorded. Remaining: ₹${u.amount.toLocaleString("en-IN")}`, "#0891b2");
+      }
+      closePartialModal();
+      renderUdhaar();
+    }
+
+    // ---- Notes ----
+    function openNotes(id) {
+      activeNotesId = id;
+      const u = udhaarData.find(x => x.id === id);
+      document.getElementById("notesPersonName").textContent = u.name;
+      document.getElementById("notesText").value = u.note || "";
+      document.getElementById("notesModal").style.display = "flex";
+    }
+
+    function closeNotesModal() {
+      document.getElementById("notesModal").style.display = "none";
+      activeNotesId = null;
+    }
+
+    function submitNote() {
+      const note = document.getElementById("notesText").value.trim();
+      const u = udhaarData.find(x => x.id === activeNotesId);
+      if (!u) return;
+      u.note = note;
+      closeNotesModal();
+      renderUdhaar();
+      showUToast("📝 Note saved!", "#374151");
+    }
+
+    // ---- Add new udhaar ----
+    function addUdhaar() {
+      const name   = document.getElementById("uName").value.trim();
+      const amount = parseInt(document.getElementById("uAmount").value);
+      const date   = document.getElementById("uDate").value;
+      const note   = document.getElementById("uNote").value.trim();
+
+      if (!name)                     { showUToast("⚠️ Please enter a name", "#d97706");   return; }
+      if (isNaN(amount) || amount < 1){ showUToast("⚠️ Enter a valid amount", "#d97706");  return; }
+      if (!date)                     { showUToast("⚠️ Please select a date", "#d97706");  return; }
+
+      udhaarData.push({ id: nextId++, name, amount, date, note, paid: false });
+      closeUdhaarModal();
+      renderUdhaar();
+      showUToast(`📒 Udhaar added for ${name}`, "#059669");
+
+      document.getElementById("uName").value   = "";
+      document.getElementById("uAmount").value = "";
+      document.getElementById("uNote").value   = "";
+      document.getElementById("uDate").value   = "";
+    }
+
+    // ---- Modal controls ----
+    function openUdhaarModal() {
+      document.getElementById("udhaarModal").style.display = "flex";
+      // Set today's date as default
+      document.getElementById("uDate").value = new Date().toISOString().split("T")[0];
+      setTimeout(() => document.getElementById("uName").focus(), 100);
+    }
+
+    function closeUdhaarModal() {
+      document.getElementById("udhaarModal").style.display = "none";
+    }
+
+    // ---- Toast ----
+    function showUToast(msg, bg) {
+      const t = document.getElementById("uToast");
+      t.textContent      = msg;
+      t.style.background = bg;
+      t.style.display    = "block";
+      clearTimeout(t._t);
+      t._t = setTimeout(() => { t.style.display = "none"; }, 3000);
+    }
+
+    // ---- Close modals on outside click ----
+    document.getElementById("udhaarModal").addEventListener("click",  e => { if (e.target === document.getElementById("udhaarModal"))  closeUdhaarModal(); });
+    document.getElementById("partialModal").addEventListener("click", e => { if (e.target === document.getElementById("partialModal")) closePartialModal(); });
+    document.getElementById("notesModal").addEventListener("click",   e => { if (e.target === document.getElementById("notesModal"))   closeNotesModal(); });
+
+    // ---- Wire buttons ----
+    document.getElementById("openUdhaarBtn").addEventListener("click",  openUdhaarModal);
+    document.getElementById("closeUdhaarBtn").addEventListener("click", closeUdhaarModal);
+    document.getElementById("submitUdhaarBtn").addEventListener("click", addUdhaar);
+
+    // ---- Expose to window ----
+    window.markPaid          = markPaid;
+    window.openPartial       = openPartial;
+    window.closePartialModal = closePartialModal;
+    window.submitPartial     = submitPartial;
+    window.openNotes         = openNotes;
+    window.closeNotesModal   = closeNotesModal;
+    window.submitNote        = submitNote;
+
+    // ---- Init ----
+    renderUdhaar();
+
+    // =============================================
+    // ===== DASHBOARD STATE — single source of truth =====
+    // =============================================
+
+    // Load saved state or use defaults
+    const _savedDash = sessionStorage.getItem("dk_dashboard");
+    const dashboardState = _savedDash ? JSON.parse(_savedDash) : {
+      totalProducts:  248,
+      lowStock:       14,
+      todaySales:     0,
+      monthlyRevenue: 210000,
+      totalOrders:    384,
+      todayOrders:    0,
+    };
+
+    // ---- Format number as Indian currency ----
+    function formatINR(n) {
+      if (n >= 100000) return "₹" + (n / 100000).toFixed(1) + "L";
+      if (n >= 1000)   return "₹" + (n / 1000).toFixed(1) + "k";
+      return "₹" + n.toLocaleString("en-IN");
+    }
+
+    // ---- Update all stat cards from dashboardState ----
+    function updateDashboard() {
+      const s = dashboardState;
+
+      // Total Products
+      document.getElementById("totalProductsValue").textContent = s.totalProducts;
+
+      // Low Stock
+      document.getElementById("lowStockValue").textContent = s.lowStock;
+
+      // Today's Sales
+      document.getElementById("todaySalesValue").textContent = s.todaySales > 0
+        ? "₹" + s.todaySales.toLocaleString("en-IN")
+        : "₹0";
+      document.getElementById("todaySalesChange").textContent = s.todayOrders > 0
+        ? "↑ " + s.todayOrders + " order" + (s.todayOrders > 1 ? "s" : "") + " today"
+        : "No sales yet today";
+      document.getElementById("todaySalesChange").className = s.todayOrders > 0
+        ? "stat-change up"
+        : "stat-change";
+
+      // Monthly Revenue
+      document.getElementById("monthlyRevenueValue").textContent = formatINR(s.monthlyRevenue);
+      document.getElementById("monthlyRevenueChange").textContent = s.todaySales > 0
+        ? "↑ ₹" + s.todaySales.toLocaleString("en-IN") + " added today"
+        : "↑ 8% vs last month";
+    }
+
+    // =============================================
+    // ===== SELL ITEMS LOGIC =====
+    // =============================================
+
+    // Product catalogue (matches inventory)
+    const products = [
+      { name: "Tata Salt 1kg",        price: 24,  stock: 42 },
+      { name: "Amul Butter 500g",      price: 280, stock: 8  },
+      { name: "Parle-G 800g",          price: 60,  stock: 3  },
+      { name: "Surf Excel 1kg",        price: 120, stock: 29 },
+      { name: "Maggi Noodles",         price: 14,  stock: 6  },
+      { name: "Amul Milk 1L",          price: 68,  stock: 55 },
+      { name: "Fortune Rice 5kg",      price: 380, stock: 18 },
+      { name: "Coca-Cola 2L",          price: 95,  stock: 4  },
+      { name: "Colgate 200g",          price: 99,  stock: 22 },
+      { name: "Haldiram Bhujia",       price: 30,  stock: 31 },
+      { name: "Tata Tea 500g",         price: 220, stock: 14 },
+      { name: "Aashirvaad Atta 5kg",   price: 290, stock: 9  },
+    ];
+
+    // Load saved sales log
+    const _savedLog = sessionStorage.getItem("dk_salesLog");
+    let salesLog = _savedLog ? JSON.parse(_savedLog) : [];
+    let sellRowCount = 0;
+
+    // Build product dropdown options
+    function productOptions(selectedName) {
+      return products.map(p =>
+        `<option value="${p.name}" ${p.name === selectedName ? "selected" : ""}>${p.name} (₹${p.price})</option>`
+      ).join("");
+    }
+
+    // Add a new sell row
+    function addSellRow(name = "", qty = 1) {
+      sellRowCount++;
+      const id  = sellRowCount;
+      const div = document.createElement("div");
+      div.className = "sell-product-row";
+      div.id = "sell-row-" + id;
+
+      const defaultProduct = name || products[0].name;
+      const defaultPrice   = products.find(p => p.name === defaultProduct)?.price || 0;
+
+      div.innerHTML = `
+        <select onchange="onProductChange(${id})" id="sell-product-${id}">
+          ${productOptions(defaultProduct)}
+        </select>
+        <input type="number" id="sell-qty-${id}" value="${qty}" min="1"
+          oninput="recalcTotal()" style="text-align:center;"/>
+        <input type="number" id="sell-price-${id}" value="${defaultPrice}" min="0"
+          oninput="recalcTotal()" style="text-align:center;"/>
+        <button class="sell-remove-btn" onclick="removeSellRow(${id})">×</button>`;
+
+      document.getElementById("sellRows").appendChild(div);
+      recalcTotal();
+    }
+
+    // Update price when product changes
+    function onProductChange(id) {
+      const name  = document.getElementById("sell-product-" + id).value;
+      const prod  = products.find(p => p.name === name);
+      if (prod) document.getElementById("sell-price-" + id).value = prod.price;
+      recalcTotal();
+    }
+
+    // Remove a sell row
+    function removeSellRow(id) {
+      const el = document.getElementById("sell-row-" + id);
+      if (el) el.remove();
+      recalcTotal();
+    }
+
+    // Recalculate total
+    function recalcTotal() {
+      let total = 0;
+      document.querySelectorAll(".sell-product-row").forEach(row => {
+        const id    = row.id.replace("sell-row-", "");
+        const qty   = parseFloat(document.getElementById("sell-qty-" + id)?.value)   || 0;
+        const price = parseFloat(document.getElementById("sell-price-" + id)?.value) || 0;
+        total += qty * price;
+      });
+      document.getElementById("sellTotal").textContent = "₹" + total.toLocaleString("en-IN");
+    }
+
+    // Confirm the sale
+    function confirmSale() {
+      const rows = document.querySelectorAll(".sell-product-row");
+      if (!rows.length) { showUToast("⚠️ Add at least one product!", "#d97706"); return; }
+
+      let items  = [];
+      let total  = 0;
+      let valid  = true;
+
+      rows.forEach(row => {
+        const id    = row.id.replace("sell-row-", "");
+        const name  = document.getElementById("sell-product-" + id).value;
+        const qty   = parseInt(document.getElementById("sell-qty-" + id).value);
+        const price = parseFloat(document.getElementById("sell-price-" + id).value);
+
+        if (!qty || qty < 1) { showUToast("⚠️ Enter valid quantity!", "#d97706"); valid = false; return; }
+
+        // Check stock
+        const prod = products.find(p => p.name === name);
+        if (prod && qty > prod.stock) {
+          showUToast(`⚠️ Not enough stock for ${name}! Only ${prod.stock} left.`, "#d97706");
+          valid = false;
+          return;
+        }
+
+        items.push({ name, qty, price, subtotal: qty * price });
+        total += qty * price;
+
+        // Deduct from stock
+        if (prod) prod.stock -= qty;
+      });
+
+      if (!valid) return;
+
+      // Add to sales log
+      const now = new Date();
+      const time = now.toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit" });
+
+      salesLog.unshift({ items, total, time, id: Date.now() });
+
+      // Update dashboard state
+      dashboardState.todaySales     += total;
+      dashboardState.monthlyRevenue += total;
+      dashboardState.totalOrders    += 1;
+      dashboardState.todayOrders    += 1;
+
+      // Deduct total products if stock hits zero
+      const zeroStock = products.filter(p => p.stock <= 0).length;
+      dashboardState.lowStock = products.filter(p => p.stock > 0 && p.stock <= 10).length;
+
+      saveAllState();
+      renderSalesLog();
+      updateDashboard();
+      closeSellModal();
+      showUToast(`✅ Sale of ₹${total.toLocaleString("en-IN")} recorded!`, "#059669");
+    }
+
+    // Render sales log
+    function renderSalesLog() {
+      const log = document.getElementById("salesLog");
+
+      if (!salesLog.length) {
+        log.innerHTML = `<div style="text-align:center;padding:28px;color:#9ca3af;font-size:13px;">No sales recorded yet today. Click <strong>Sell Item</strong> to start!</div>`;
+        document.getElementById("logTotalAmt").textContent   = "₹0";
+        document.getElementById("logTotalCount").textContent = "0 sales";
+        return;
+      }
+
+      const grandTotal = salesLog.reduce((s, e) => s + e.total, 0);
+      const avgOrder   = Math.round(grandTotal / salesLog.length);
+
+      document.getElementById("logTotalAmt").textContent   = "₹" + grandTotal.toLocaleString("en-IN");
+      document.getElementById("logTotalCount").textContent = salesLog.length + " sale" + (salesLog.length > 1 ? "s" : "");
+
+      log.innerHTML = salesLog.map(entry => {
+        const avg = Math.round(entry.total / entry.items.length);
+        return `
+        <div class="sales-log-row">
+          <div style="flex:1;">
+            <div style="font-weight:600;color:#111827;font-size:13px;">
+              ${entry.items.map(i => `${i.name} ×${i.qty}`).join(", ")}
+            </div>
+            <div class="sales-log-time">🕐 ${entry.time} &nbsp;·&nbsp; ${entry.items.length} item${entry.items.length > 1 ? "s" : ""} &nbsp;·&nbsp; Avg ₹${avg.toLocaleString("en-IN")}</div>
+          </div>
+          <div class="sales-log-amount">₹${entry.total.toLocaleString("en-IN")}</div>
+        </div>`;
+      }).join("");
+    }
+
+    // Open / Close sell modal
+    function openSellModal() {
+      document.getElementById("sellRows").innerHTML = "";
+      sellRowCount = 0;
+      addSellRow();
+      document.getElementById("sellModal").style.display = "flex";
+    }
+
+    function closeSellModal() {
+      document.getElementById("sellModal").style.display = "none";
+    }
+
+    // Wire sell modal buttons
+    document.getElementById("openSellBtn").addEventListener("click",   openSellModal);
+    document.getElementById("closeSellBtn").addEventListener("click",  closeSellModal);
+    document.getElementById("confirmSellBtn").addEventListener("click", confirmSale);
+    document.getElementById("addSellRowBtn").addEventListener("click",  () => addSellRow());
+    document.getElementById("sellModal").addEventListener("click", e => {
+      if (e.target === document.getElementById("sellModal")) closeSellModal();
+    });
+
+    // Expose to window
+    window.onProductChange = onProductChange;
+    window.removeSellRow   = removeSellRow;
+
+    // Init
+    renderSalesLog();
+    updateDashboard();
+
+    // Single save function — saves everything to sessionStorage
+    function saveAllState() {
+      sessionStorage.setItem("dk_dashboard", JSON.stringify(dashboardState));
+      sessionStorage.setItem("dk_salesLog",  JSON.stringify(salesLog));
+      sessionStorage.setItem("dk_inventory", JSON.stringify(products));
+    }
+
+    // Override updateDashboard to auto-save
+    const _origUpdate = updateDashboard;
+    updateDashboard = function() {
+      _origUpdate();
+      saveAllState();
+    };
+
+    // Expose globals
+    window.updateDashboard = updateDashboard;
+    window.dashboardState  = dashboardState;
+    window.saveAllState    = saveAllState;
+
+  </script>
+
+</body>
+</html>

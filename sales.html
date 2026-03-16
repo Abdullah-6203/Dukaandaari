@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Dukaandaari — Sales Analytics</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="CSS/style.css"/>
+</head>
+<body>
+
+  <!-- ===== SIDEBAR ===== -->
+  <aside class="sidebar" id="tour-sidebar">
+    <div class="sidebar-logo">
+      <img
+        src="high-res-omg.png"
+        alt="Dukaandaari"
+        style="width: 170px; height:auto; object-fit:contain; border-radius:2px; position: relative; left: 10px;"
+      />
+    </div>
+    <div class="sidebar-user">
+      <div class="sidebar-avatar">C</div>
+      <div>
+        <p>Welcome back,</p>
+        <p>Hi, Chaitanya! 👋</p>
+      </div>
+    </div>
+    <nav class="sidebar-nav">
+      <p class="sidebar-section-label">Main Menu</p>
+      <a href="index.html"       class="sidebar-link active"><span class="icon">📊</span> Overview</a>
+      <a href="inventory.html"   class="sidebar-link"><span class="icon">📦</span> Inventory Tracker</a>
+      <a href="sales.html"       class="sidebar-link"><span class="icon">📈</span> Sales Analytics</a>
+      <a href="ai-insights.html" class="sidebar-link"><span class="icon">🤖</span> AI Insights</a>
+      <p class="sidebar-section-label">Alerts</p>
+      <a href="#" class="sidebar-link">
+        <span class="icon">💬</span> WhatsApp Alerts
+        <span class="sidebar-badge">3</span>
+      </a>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="status-dot"></div>
+      <p>System Online</p>
+    </div>
+  </aside>
+
+  <!-- ===== MAIN ===== -->
+  <main class="main">
+
+    <div class="topbar">
+      <div><h2>Sales Analytics</h2><p>Track your revenue, trends and top products</p></div>
+      <div style="display:flex;gap:8px;">
+        <button id="btn-week"  class="range-btn active"   onclick="setRange('week')">This Week</button>
+        <button id="btn-month" class="range-btn inactive" onclick="setRange('month')">This Month</button>
+      </div>
+    </div>
+
+    <div class="page-content">
+
+      <!-- KPI Cards -->
+      <div class="stat-grid">
+        <div class="stat-card">
+          <div class="stat-card-header"><p>Total Revenue</p><div class="stat-icon cyan">💰</div></div>
+          <div class="stat-value" id="kpi-revenue">₹51,620</div>
+          <div class="stat-change up">↑ 14% vs last week</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-card-header"><p>Total Orders</p><div class="stat-icon blue">🧾</div></div>
+          <div class="stat-value" id="kpi-orders">384</div>
+          <div class="stat-change up">↑ 9% vs last week</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-card-header"><p>Avg Order Value</p><div class="stat-icon green">📊</div></div>
+          <div class="stat-value" id="kpi-avg">₹134</div>
+          <div class="stat-change up">↑ 5% vs last week</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-card-header"><p>Best Day</p><div class="stat-icon orange">🏆</div></div>
+          <div class="stat-value" id="kpi-best">Sat</div>
+          <div class="stat-change up">₹9,400 in sales</div>
+        </div>
+      </div>
+
+      <!-- Line Chart -->
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <div class="card-title">Revenue Trend</div>
+            <div class="card-subtitle">Daily sales performance</div>
+          </div>
+          <div class="chart-legend-row">
+            <div class="chart-legend-item">
+              <div class="chart-legend-line" style="background:#06b6d4"></div>
+              <span class="chart-legend-text">This Period</span>
+            </div>
+            <div class="chart-legend-item">
+              <div class="chart-legend-line" style="background:#e2e8f0"></div>
+              <span class="chart-legend-text">Last Period</span>
+            </div>
+          </div>
+        </div>
+        <canvas id="lineChart" height="80"></canvas>
+      </div>
+
+      <!-- Two Charts -->
+      <div class="two-col">
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <div class="card-title">Peak Hours</div>
+              <div class="card-subtitle">Busiest times of the day</div>
+            </div>
+          </div>
+          <canvas id="hourlyChart" height="160"></canvas>
+        </div>
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <div class="card-title">Top 5 Products</div>
+              <div class="card-subtitle">By revenue this week</div>
+            </div>
+          </div>
+          <div id="topProducts"></div>
+        </div>
+      </div>
+
+      <!-- Category Bar -->
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <div class="card-title">Sales by Category</div>
+            <div class="card-subtitle">Revenue breakdown per category</div>
+          </div>
+        </div>
+        <canvas id="categoryBar" height="70"></canvas>
+      </div>
+
+    </div>
+  </main>
+
+  <script src="JS/charts.js"></script>
+  <script>
+    // ---- Load live data from sessionStorage ----
+    const _sd          = sessionStorage.getItem("dk_dashboard");
+    const savedState   = _sd ? JSON.parse(_sd) : {};
+    const liveSales    = savedState.todaySales     || 0;
+    const liveRevenue  = savedState.monthlyRevenue || 210000;
+    const liveOrders   = savedState.totalOrders    || 384;
+    const liveTodayOrd = savedState.todayOrders    || 0;
+    const _sl          = sessionStorage.getItem("dk_salesLog");
+    const liveSalesLog = _sl ? JSON.parse(_sl) : [];
+
+    // ---- Base week data + add today's sales to today (Sunday) ----
+    const baseWeek = [6200, 5800, 7100, 6500, 8200, 9400, 8420];
+    baseWeek[6] = baseWeek[6] + liveSales; // add today's recorded sales to Sunday
+
+    const weekData  = {
+      labels:   ["Mon","Tue","Wed","Thu","Fri","Sat","Sun"],
+      current:  baseWeek,
+      previous: [5400, 5100, 6200, 5800, 7100, 8200, 7600]
+    };
+    const monthData = {
+      labels:   ["Week 1","Week 2","Week 3","Week 4"],
+      current:  [48000, 52000, 49000, 61000 + liveSales],
+      previous: [42000, 47000, 45000, 55000]
+    };
+
+    let lineChart, hourlyChart, catBar;
+
+    // ---- Calculate avg order value ----
+    function calcAvg(revenue, orders) {
+      if (!orders) return "₹0";
+      return "₹" + Math.round(revenue / orders).toLocaleString("en-IN");
+    }
+
+    // ---- Build top products from live sales log + base data ----
+    function renderTopProducts() {
+      // Start with base data
+      const productMap = {
+        "Amul Milk 1L":       8840,
+        "Parle-G 800g":       6420,
+        "Fortune Rice 5kg":   5700,
+        "Tata Tea 500g":      4840,
+        "Coca-Cola 2L":       3800,
+      };
+
+      // Add live sales on top
+      liveSalesLog.forEach(entry => {
+        entry.items.forEach(item => {
+          if (productMap[item.name] !== undefined) {
+            productMap[item.name] += item.subtotal;
+          } else {
+            productMap[item.name] = item.subtotal;
+          }
+        });
+      });
+
+      // Sort by revenue and take top 5
+      const sorted = Object.entries(productMap)
+        .sort((a, b) => b[1] - a[1])
+        .slice(0, 5);
+
+      const maxRev = sorted[0]?.[1] || 1;
+
+      document.getElementById("topProducts").innerHTML = sorted.map(([name, revenue]) => `
+        <div class="progress-item">
+          <div class="progress-row">
+            <span class="progress-name">${name}</span>
+            <span class="progress-val">₹${revenue.toLocaleString("en-IN")}</span>
+          </div>
+          <div class="progress-bg">
+            <div class="progress-fill" style="width:${Math.round((revenue/maxRev)*100)}%"></div>
+          </div>
+        </div>`).join("");
+    }
+
+    // ---- Set range and update KPIs ----
+    function setRange(range) {
+      const isWeek = range === "week";
+      document.getElementById("btn-week").className  = "range-btn " + (isWeek  ? "active" : "inactive");
+      document.getElementById("btn-month").className = "range-btn " + (!isWeek ? "active" : "inactive");
+
+      if (isWeek) {
+        const weekRevenue = baseWeek.reduce((s, v) => s + v, 0);
+        const weekOrders  = liveOrders;
+        document.getElementById("kpi-revenue").textContent = "₹" + weekRevenue.toLocaleString("en-IN");
+        document.getElementById("kpi-orders").textContent  = weekOrders.toLocaleString("en-IN");
+        document.getElementById("kpi-avg").textContent     = calcAvg(weekRevenue, weekOrders);
+        document.getElementById("kpi-best").textContent    = "Sat";
+      } else {
+        const monthRevenue = liveRevenue;
+        const monthOrders  = liveOrders + 1158;
+        document.getElementById("kpi-revenue").textContent = "₹" + monthRevenue.toLocaleString("en-IN");
+        document.getElementById("kpi-orders").textContent  = monthOrders.toLocaleString("en-IN");
+        document.getElementById("kpi-avg").textContent     = calcAvg(monthRevenue, monthOrders);
+        document.getElementById("kpi-best").textContent    = "Week 4";
+      }
+
+      if (lineChart) lineChart.destroy();
+      lineChart = buildLineChart("lineChart", isWeek ? weekData : monthData);
+    }
+
+    // ---- Init ----
+    renderTopProducts();
+    setRange("week");
+    hourlyChart = buildHourlyChart("hourlyChart");
+    catBar      = buildCategoryBarChart("categoryBar");
+  </script>
+
+  <script>
+    // Auth guard — redirect to login if not signed in
+    if (!sessionStorage.getItem("loggedIn")) {
+      window.location.href = "login.html";
+    }
+  </script>
+</body>
+</html>

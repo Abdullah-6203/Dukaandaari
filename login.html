@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Dukaandaari — Login</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+  <style>
+    * { font-family: 'Inter', sans-serif; }
+    body { margin: 0; background: #f8fafc; }
+
+    .login-wrapper {
+      min-height: 100vh;
+      display: flex;
+    }
+
+    /* ===== LEFT PANEL ===== */
+    .left-panel {
+      width: 45%;
+      background: #111827;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: flex-start;
+      padding: 60px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .left-panel::before {
+      content: '';
+      position: absolute;
+      width: 400px;
+      height: 400px;
+      background: radial-gradient(circle, rgba(6,182,212,0.15) 0%, transparent 70%);
+      top: -100px;
+      right: -100px;
+      border-radius: 50%;
+    }
+
+    .left-panel::after {
+      content: '';
+      position: absolute;
+      width: 300px;
+      height: 300px;
+      background: radial-gradient(circle, rgba(52,211,153,0.1) 0%, transparent 70%);
+      bottom: -50px;
+      left: -50px;
+      border-radius: 50%;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin-bottom: 60px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .brand-icon {
+      width: 48px;
+      height: 48px;
+      background-color: #06b6d4;
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+    }
+
+    .brand-name {
+      color: #ffffff;
+      font-size: 24px;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+    }
+
+    .brand-tagline {
+      color: #6b7280;
+      font-size: 12px;
+      margin-top: 2px;
+    }
+
+    .left-heading {
+      color: #ffffff;
+      font-size: 36px;
+      font-weight: 800;
+      line-height: 1.2;
+      margin-bottom: 16px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .left-heading span { color: #06b6d4; }
+
+    .left-sub {
+      color: #9ca3af;
+      font-size: 15px;
+      line-height: 1.7;
+      margin-bottom: 48px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .feature-list {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .feature-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .feature-dot {
+      width: 8px;
+      height: 8px;
+      background: #06b6d4;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    .feature-text {
+      color: #d1d5db;
+      font-size: 14px;
+    }
+
+    /* ===== RIGHT PANEL ===== */
+    .right-panel {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 40px;
+      background: #f8fafc;
+      position: relative;
+    }
+
+    /* Language Toggle Button */
+    .lang-toggle-btn {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      background: #ffffff;
+      border: 1.5px solid #e5e7eb;
+      border-radius: 10px;
+      padding: 7px 14px;
+      font-size: 12px;
+      font-weight: 600;
+      color: #374151;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+      font-family: Inter, sans-serif;
+    }
+
+    .lang-toggle-btn:hover {
+      border-color: #06b6d4;
+      color: #06b6d4;
+      background: #ecfeff;
+    }
+
+    .login-card {
+      width: 100%;
+      max-width: 400px;
+    }
+
+    .login-title {
+      color: #111827;
+      font-size: 26px;
+      font-weight: 800;
+      margin-bottom: 6px;
+    }
+
+    .login-subtitle {
+      color: #6b7280;
+      font-size: 14px;
+      margin-bottom: 36px;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    .form-label {
+      display: block;
+      color: #374151;
+      font-size: 13px;
+      font-weight: 600;
+      margin-bottom: 6px;
+    }
+
+    .form-input {
+      width: 100%;
+      padding: 12px 16px;
+      border: 1.5px solid #e5e7eb;
+      border-radius: 10px;
+      font-size: 14px;
+      color: #111827;
+      background: #ffffff;
+      outline: none;
+      transition: border 0.2s, box-shadow 0.2s;
+      box-sizing: border-box;
+      font-family: Inter, sans-serif;
+    }
+
+    .form-input:focus {
+      border-color: #06b6d4;
+      box-shadow: 0 0 0 3px rgba(6,182,212,0.12);
+    }
+
+    .form-input.error {
+      border-color: #ef4444;
+      box-shadow: 0 0 0 3px rgba(239,68,68,0.1);
+    }
+
+    .password-wrap {
+      position: relative;
+    }
+
+    .password-wrap .form-input {
+      padding-right: 44px;
+    }
+
+    .toggle-password {
+      position: absolute;
+      right: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      cursor: pointer;
+      color: #9ca3af;
+      font-size: 16px;
+      background: none;
+      border: none;
+      padding: 0;
+      line-height: 1;
+    }
+
+    .toggle-password:hover { color: #374151; }
+
+    .error-msg {
+      display: none;
+      color: #ef4444;
+      font-size: 12px;
+      margin-top: 8px;
+      font-weight: 500;
+    }
+
+    .error-msg.show { display: block; }
+
+    .login-btn {
+      width: 100%;
+      padding: 13px;
+      background: #06b6d4;
+      color: white;
+      border: none;
+      border-radius: 10px;
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background 0.2s, transform 0.1s;
+      margin-top: 8px;
+      font-family: Inter, sans-serif;
+    }
+
+    .login-btn:hover { background: #0891b2; }
+    .login-btn:active { transform: scale(0.98); }
+    .login-btn:disabled {
+      background: #9ca3af;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .hint-box {
+      background: #f0fdf4;
+      border: 1px solid #bbf7d0;
+      border-radius: 10px;
+      padding: 12px 16px;
+      margin-top: 24px;
+    }
+
+    .hint-box p {
+      color: #166534;
+      font-size: 12px;
+      font-weight: 500;
+      margin: 0;
+      line-height: 1.6;
+    }
+
+    .hint-box span {
+      font-weight: 700;
+      color: #15803d;
+    }
+
+    .footer-note {
+      text-align: center;
+      color: #9ca3af;
+      font-size: 12px;
+      margin-top: 28px;
+    }
+
+    /* Shake animation on wrong password */
+    @keyframes shake {
+      0%,100% { transform: translateX(0); }
+      20%      { transform: translateX(-8px); }
+      40%      { transform: translateX(8px); }
+      60%      { transform: translateX(-6px); }
+      80%      { transform: translateX(6px); }
+    }
+
+    .shake { animation: shake 0.4s ease; }
+  </style>
+</head>
+<body>
+
+<div class="login-wrapper">
+
+  <!-- ===== LEFT PANEL ===== -->
+  <div class="left-panel">
+    <div class="brand">
+      <img
+        src="high-res-omg.png"
+        alt="Dukaandaari"
+        style="height: 60px; width:auto; object-fit:contain; border-radius:10px;"
+      />
+    </div>
+
+    <h1 class="left-heading" id="lp-heading">
+      Every dukaan deserves<br/>to be a <span>smart dukaan.</span>
+    </h1>
+
+    <p class="left-sub" id="lp-sub">
+      AI-powered insights, real-time inventory tracking,<br/>
+      and WhatsApp alerts — all in one place.
+    </p>
+
+    <div class="feature-list">
+      <div class="feature-item">
+        <div class="feature-dot"></div>
+        <span class="feature-text">📦 Smart Inventory Tracker</span>
+      </div>
+      <div class="feature-item">
+        <div class="feature-dot"></div>
+        <span class="feature-text">📈 Sales Analytics Dashboard</span>
+      </div>
+      <div class="feature-item">
+        <div class="feature-dot"></div>
+        <span class="feature-text">🤖 AI Business Insights via Gemini</span>
+      </div>
+      <div class="feature-item">
+        <div class="feature-dot"></div>
+        <span class="feature-text">💬 WhatsApp Alerts for Low Stock</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== RIGHT PANEL ===== -->
+  <div class="right-panel">
+
+    <!-- Language Toggle -->
+    <button class="lang-toggle-btn" id="langToggleBtn" onclick="toggleLanguage()">
+      🌐 <span id="langBtnText">हिंदी में देखें</span>
+    </button>
+
+    <div class="login-card">
+      <h2 class="login-title"  id="lp-title">Welcome back 👋</h2>
+      <p class="login-subtitle" id="lp-subtitle">Sign in to your Dukaandaari account</p>
+
+      <!-- Username -->
+      <div class="form-group">
+        <label class="form-label" id="lp-usernameLabel">Username</label>
+        <input id="usernameInput" type="text" class="form-input" placeholder="Enter your username"/>
+      </div>
+
+      <!-- Password -->
+      <div class="form-group">
+        <label class="form-label" id="lp-passwordLabel">Password</label>
+        <div class="password-wrap">
+          <input id="passwordInput" type="password" class="form-input" placeholder="Enter your password"/>
+          <button class="toggle-password" id="toggleBtn">👁️</button>
+        </div>
+        <p class="error-msg" id="errorMsg"></p>
+      </div>
+
+      <!-- Login Button -->
+      <button class="login-btn" id="loginBtn">Sign In</button>
+
+      <!-- Hint Box -->
+      <div class="hint-box">
+        <p id="lp-hint">
+          Demo credentials —<br/>
+          Username: <span>chaitanya</span> &nbsp;|&nbsp; Password: <span>dukaan123</span>
+        </p>
+      </div>
+
+      <p class="footer-note" id="lp-footer">Dukaandaari · Built by LogicFlux · GenCode X 2026</p>
+    </div>
+  </div>
+
+</div>
+
+<script src="JS/translations.js"></script>
+<script>
+  const VALID_USERNAME = "chaitanya";
+  const VALID_PASSWORD = "dukaan123";
+
+  // ---- Apply translations on load ----
+  function applyLang() {
+    const lang = getLang();
+
+    document.getElementById("lp-title").textContent         = t("welcomeBack");
+    document.getElementById("lp-subtitle").textContent      = t("signInTo");
+    document.getElementById("lp-usernameLabel").textContent = t("username");
+    document.getElementById("lp-passwordLabel").textContent = t("password");
+    document.getElementById("usernameInput").placeholder    = t("usernamePlaceholder");
+    document.getElementById("passwordInput").placeholder    = t("passwordPlaceholder");
+    document.getElementById("loginBtn").textContent         = t("signIn");
+    document.getElementById("lp-footer").textContent        = t("footerNote");
+    document.getElementById("langBtnText").textContent      = lang === "en" ? t("switchToHindi") : t("switchToEnglish");
+
+    if (lang === "hi") {
+      document.getElementById("lp-tagline").textContent  = "स्मार्ट रिटेल डैशबोर्ड";
+      document.getElementById("lp-heading").innerHTML    = "हर दुकान को होना चाहिए<br/>एक <span style='color:#06b6d4'>स्मार्ट दुकान।</span>";
+      document.getElementById("lp-sub").innerHTML        = "AI-संचालित अंतर्दृष्टि, रियल-टाइम इन्वेंटरी,<br/>और WhatsApp अलर्ट — एक ही जगह।";
+      document.getElementById("lp-hint").innerHTML       = "डेमो क्रेडेंशियल —<br/>उपयोगकर्ता: <span style='font-weight:700;color:#15803d'>chaitanya</span> &nbsp;|&nbsp; पासवर्ड: <span style='font-weight:700;color:#15803d'>dukaan123</span>";
+    }
+  }
+
+  // ---- Login logic ----
+  function handleLogin() {
+    const username = document.getElementById("usernameInput").value.trim().toLowerCase();
+    const password = document.getElementById("passwordInput").value.trim();
+    const errorMsg = document.getElementById("errorMsg");
+
+    // Clear previous errors
+    errorMsg.classList.remove("show");
+    document.getElementById("usernameInput").classList.remove("error");
+    document.getElementById("passwordInput").classList.remove("error");
+
+    // Empty check
+    if (!username || !password) {
+      errorMsg.textContent = t("errorEmpty");
+      errorMsg.classList.add("show");
+      if (!username) document.getElementById("usernameInput").classList.add("error");
+      if (!password) document.getElementById("passwordInput").classList.add("error");
+      return;
+    }
+
+    // Credential check
+    if (username === VALID_USERNAME && password === VALID_PASSWORD) {
+      const btn = document.getElementById("loginBtn");
+      btn.textContent = t("signingIn");
+      btn.disabled    = true;
+      sessionStorage.setItem("loggedIn", "true");
+      sessionStorage.setItem("userName", "Chaitanya");
+      sessionStorage.removeItem("tourDone");
+      setTimeout(() => { window.location.href = "index.html"; }, 800);
+    } else {
+      errorMsg.textContent = t("errorWrong");
+      errorMsg.classList.add("show");
+      document.getElementById("usernameInput").classList.add("error");
+      document.getElementById("passwordInput").classList.add("error");
+
+      // Shake animation
+      document.querySelector(".login-card").classList.add("shake");
+      setTimeout(() => document.querySelector(".login-card").classList.remove("shake"), 400);
+
+      document.getElementById("passwordInput").value = "";
+      document.getElementById("passwordInput").focus();
+    }
+  }
+
+  // ---- Toggle password visibility ----
+  document.getElementById("toggleBtn").addEventListener("click", () => {
+    const inp    = document.getElementById("passwordInput");
+    const isPass = inp.type === "password";
+    inp.type     = isPass ? "text" : "password";
+    document.getElementById("toggleBtn").textContent = isPass ? "🙈" : "👁️";
+  });
+
+  // ---- Event listeners ----
+  document.getElementById("loginBtn").addEventListener("click", handleLogin);
+
+  document.getElementById("usernameInput").addEventListener("keydown", e => {
+    if (e.key === "Enter") document.getElementById("passwordInput").focus();
+  });
+  document.getElementById("passwordInput").addEventListener("keydown", e => {
+    if (e.key === "Enter") handleLogin();
+  });
+
+  // Clear errors on typing
+  document.getElementById("usernameInput").addEventListener("input", () => {
+    document.getElementById("errorMsg").classList.remove("show");
+    document.getElementById("usernameInput").classList.remove("error");
+  });
+  document.getElementById("passwordInput").addEventListener("input", () => {
+    document.getElementById("errorMsg").classList.remove("show");
+    document.getElementById("passwordInput").classList.remove("error");
+  });
+
+  // ---- Apply language on load ----
+  applyLang();
+</script>
+<script src="JS/state.js"></script>
+
+</body>
+</html>

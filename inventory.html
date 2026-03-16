@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Dukaandaari — Inventory</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="JS/state.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="CSS/style.css"/>
+</head>
+<body>
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar" id="tour-sidebar">
+    <div class="sidebar-logo">
+      <img
+        src="high-res-omg.png"
+        alt="Dukaandaari"
+        style="width: 170px; height:auto; object-fit:contain; border-radius:2px; position: relative; left: 10px;"
+      />
+    </div>
+    <div class="sidebar-user">
+      <div class="sidebar-avatar">C</div>
+      <div>
+        <p>Welcome back,</p>
+        <p>Hi, Chaitanya! 👋</p>
+      </div>
+    </div>
+    <nav class="sidebar-nav">
+      <p class="sidebar-section-label">Main Menu</p>
+      <a href="index.html"       class="sidebar-link active"><span class="icon">📊</span> Overview</a>
+      <a href="inventory.html"   class="sidebar-link"><span class="icon">📦</span> Inventory Tracker</a>
+      <a href="sales.html"       class="sidebar-link"><span class="icon">📈</span> Sales Analytics</a>
+      <a href="ai-insights.html" class="sidebar-link"><span class="icon">🤖</span> AI Insights</a>
+      <p class="sidebar-section-label">Alerts</p>
+      <a href="#" class="sidebar-link">
+        <span class="icon">💬</span> WhatsApp Alerts
+        <span class="sidebar-badge">3</span>
+      </a>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="status-dot"></div>
+      <p>System Online</p>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main">
+    <div class="topbar">
+      <div><h2>Inventory Tracker</h2><p>Manage and monitor your stock levels</p></div>
+      <button class="btn btn-cyan" id="openModalBtn">+ Add Product</button>
+    </div>
+
+    <div class="page-content">
+
+      <!-- Summary Cards -->
+      <div class="stat-grid">
+        <div class="stat-card">
+          <div class="stat-card-header"><p>Total Items</p><div class="stat-icon blue">📦</div></div>
+          <div class="stat-value" id="totalCount">—</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-card-header"><p>In Stock</p><div class="stat-icon green">✅</div></div>
+          <div class="stat-value" id="inStockCount">—</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-card-header"><p>Low Stock</p><div class="stat-icon orange">⚠️</div></div>
+          <div class="stat-value" id="lowCount">—</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-card-header"><p>Critical</p><div class="stat-icon red">🚨</div></div>
+          <div class="stat-value" id="criticalCount">—</div>
+        </div>
+      </div>
+
+      <!-- Filter Bar -->
+      <div class="filter-bar">
+        <div class="search-wrap">
+          <span>🔍</span>
+          <input id="searchInput" type="text" class="search-input" placeholder="Search products..."/>
+        </div>
+        <select id="statusFilter" class="filter-select">
+          <option value="all">All Status</option>
+          <option value="In Stock">In Stock</option>
+          <option value="Low Stock">Low Stock</option>
+          <option value="Critical">Critical</option>
+        </select>
+        <select id="categoryFilter" class="filter-select">
+          <option value="all">All Categories</option>
+          <option value="Dairy & Eggs">Dairy & Eggs</option>
+          <option value="Snacks">Snacks</option>
+          <option value="Staples">Staples</option>
+          <option value="Beverages">Beverages</option>
+          <option value="Personal Care">Personal Care</option>
+        </select>
+      </div>
+
+      <!-- Table -->
+      <div class="card" style="padding:0;overflow:hidden;">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Product</th>
+              <th>Category</th>
+              <th>Stock</th>
+              <th>Price</th>
+              <th>Status</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody id="inventoryTable"></tbody>
+        </table>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- MODAL -->
+  <div id="addModal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:9999; align-items:center; justify-content:center;">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h3>Add New Product</h3>
+        <button class="modal-close" id="closeModalBtn">✕</button>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Product Name</label>
+        <input id="newName" type="text" class="form-input" placeholder="e.g. Tata Salt 1kg"/>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Category</label>
+          <select id="newCategory" class="form-select">
+            <option value="Dairy & Eggs">Dairy & Eggs</option>
+            <option value="Snacks">Snacks</option>
+            <option value="Staples">Staples</option>
+            <option value="Beverages">Beverages</option>
+            <option value="Personal Care">Personal Care</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Stock Qty</label>
+          <input id="newStock" type="number" class="form-input" placeholder="0" min="0"/>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Price (₹)</label>
+        <input id="newPrice" type="number" class="form-input" placeholder="0" min="0"/>
+      </div>
+      <button class="btn btn-cyan" id="submitProductBtn" style="width:100%; justify-content:center;">
+        Add Product
+      </button>
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div id="toast" style="display:none; position:fixed; bottom:24px; right:24px; color:white; padding:12px 20px; border-radius:12px; font-size:13px; font-weight:500; z-index:99999; font-family:Inter,sans-serif;"></div>
+
+  <script>
+    // ---- Data — load from sessionStorage or use defaults ----
+    const defaultInventory = [
+      { name: "Tata Salt 1kg",        category: "Staples",       stock: 42, price: 24  },
+      { name: "Amul Butter 500g",     category: "Dairy & Eggs",  stock: 8,  price: 280 },
+      { name: "Parle-G 800g",         category: "Snacks",        stock: 3,  price: 60  },
+      { name: "Surf Excel 1kg",       category: "Personal Care", stock: 29, price: 120 },
+      { name: "Maggi Noodles",        category: "Snacks",        stock: 6,  price: 14  },
+      { name: "Amul Milk 1L",         category: "Dairy & Eggs",  stock: 55, price: 68  },
+      { name: "Fortune Rice 5kg",     category: "Staples",       stock: 18, price: 380 },
+      { name: "Coca-Cola 2L",         category: "Beverages",     stock: 4,  price: 95  },
+      { name: "Colgate 200g",         category: "Personal Care", stock: 22, price: 99  },
+      { name: "Haldiram Bhujia",      category: "Snacks",        stock: 31, price: 30  },
+      { name: "Tata Tea 500g",        category: "Beverages",     stock: 14, price: 220 },
+      { name: "Aashirvaad Atta 5kg",  category: "Staples",       stock: 9,  price: 290 },
+    ];
+    const _inv = sessionStorage.getItem("dk_inventory");
+    const inventoryData = _inv ? JSON.parse(_inv) : defaultInventory;
+
+    // ---- Helpers ----
+    function getStatus(stock) {
+      if (stock <= 5)  return "Critical";
+      if (stock <= 10) return "Low Stock";
+      return "In Stock";
+    }
+
+    function getBadge(status) {
+      return { "In Stock": "badge-green", "Low Stock": "badge-orange", "Critical": "badge-red" }[status];
+    }
+
+    // ---- Update stat cards ----
+    function updateCards() {
+      document.getElementById("totalCount").textContent    = inventoryData.length;
+      document.getElementById("inStockCount").textContent  = inventoryData.filter(i => getStatus(i.stock) === "In Stock").length;
+      document.getElementById("lowCount").textContent      = inventoryData.filter(i => getStatus(i.stock) === "Low Stock").length;
+      document.getElementById("criticalCount").textContent = inventoryData.filter(i => getStatus(i.stock) === "Critical").length;
+    }
+
+    // ---- Render table ----
+    function renderTable(data) {
+      const tbody = document.getElementById("inventoryTable");
+      if (!data.length) {
+        tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;padding:40px;color:#9ca3af;font-size:13px;">No products found</td></tr>`;
+        return;
+      }
+      tbody.innerHTML = data.map((item) => {
+        const status = getStatus(item.stock);
+        const idx    = inventoryData.indexOf(item);
+        return `
+          <tr>
+            <td style="font-weight:600;color:#111827">${item.name}</td>
+            <td>${item.category}</td>
+            <td style="font-weight:600">${item.stock} units</td>
+            <td>₹${item.price}</td>
+            <td><span class="badge ${getBadge(status)}">${status}</span></td>
+            <td><button class="btn-danger" data-index="${idx}">Remove</button></td>
+          </tr>`;
+      }).join("");
+
+      // Attach remove button listeners
+      tbody.querySelectorAll(".btn-danger").forEach(btn => {
+        btn.addEventListener("click", function() {
+          const i = parseInt(this.getAttribute("data-index"));
+          const name = inventoryData[i].name;
+          inventoryData.splice(i, 1);
+          sessionStorage.setItem("dk_inventory", JSON.stringify(inventoryData));
+          renderTable(inventoryData);
+          updateCards();
+          showToast(`🗑️ "${name}" removed.`, "#374151");
+        });
+      });
+    }
+
+    // ---- Filter ----
+    function applyFilter() {
+      const search   = document.getElementById("searchInput").value.toLowerCase();
+      const status   = document.getElementById("statusFilter").value;
+      const category = document.getElementById("categoryFilter").value;
+      const filtered = inventoryData.filter(item =>
+        item.name.toLowerCase().includes(search) &&
+        (status   === "all" || getStatus(item.stock) === status) &&
+        (category === "all" || item.category === category)
+      );
+      renderTable(filtered);
+    }
+
+    // ---- Modal ----
+    function openModal() {
+      const modal = document.getElementById("addModal");
+      modal.style.display = "flex";
+      document.getElementById("newName").focus();
+    }
+
+    function closeModal() {
+      document.getElementById("addModal").style.display = "none";
+      document.getElementById("newName").value  = "";
+      document.getElementById("newStock").value = "";
+      document.getElementById("newPrice").value = "";
+      document.getElementById("newCategory").selectedIndex = 0;
+    }
+
+    // ---- Add product ----
+    function handleAddProduct() {
+      const name     = document.getElementById("newName").value.trim();
+      const category = document.getElementById("newCategory").value;
+      const stock    = parseInt(document.getElementById("newStock").value);
+      const price    = parseInt(document.getElementById("newPrice").value);
+
+      if (!name)                     { showToast("⚠️ Please enter a product name!", "#d97706");        return; }
+      if (isNaN(stock) || stock < 0) { showToast("⚠️ Please enter a valid stock quantity!", "#d97706"); return; }
+      if (isNaN(price) || price < 0) { showToast("⚠️ Please enter a valid price!", "#d97706");          return; }
+
+      inventoryData.unshift({ name, category, stock, price });
+      sessionStorage.setItem("dk_inventory", JSON.stringify(inventoryData));
+      renderTable(inventoryData);
+      updateCards();
+      closeModal();
+      showToast(`✅ "${name}" added successfully!`, "#059669");
+    }
+
+    // ---- Toast ----
+    function showToast(msg, bg) {
+      const t = document.getElementById("toast");
+      t.textContent       = msg;
+      t.style.background  = bg;
+      t.style.display     = "block";
+      clearTimeout(t._timer);
+      t._timer = setTimeout(() => { t.style.display = "none"; }, 3000);
+    }
+
+    // ---- Wire up all event listeners ----
+    document.getElementById("openModalBtn").addEventListener("click", openModal);
+    document.getElementById("closeModalBtn").addEventListener("click", closeModal);
+    document.getElementById("submitProductBtn").addEventListener("click", handleAddProduct);
+
+    document.getElementById("addModal").addEventListener("click", function(e) {
+      if (e.target === this) closeModal();
+    });
+
+    document.getElementById("searchInput").addEventListener("input", applyFilter);
+    document.getElementById("statusFilter").addEventListener("change", applyFilter);
+    document.getElementById("categoryFilter").addEventListener("change", applyFilter);
+
+    // ---- Init ----
+    renderTable(inventoryData);
+    updateCards();
+  </script>
+
+  <script>
+    // Auth guard — redirect to login if not signed in
+    if (!sessionStorage.getItem("loggedIn")) {
+      window.location.href = "login.html";
+    }
+  </script>
+</body>
+</html>

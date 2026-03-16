@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Dukaandaari — AI Insights</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="CSS/style.css"/>
+</head>
+<body>
+
+  <!-- ===== SIDEBAR ===== -->
+  <aside class="sidebar" id="tour-sidebar">
+    <div class="sidebar-logo">
+      <img
+        src="high-res-omg.png"
+        alt="Dukaandaari"
+        style="width: 170px; height:auto; object-fit:contain; border-radius:2px; position: relative; left: 10px;"
+      />
+    </div>
+    <div class="sidebar-user">
+      <div class="sidebar-avatar">C</div>
+      <div>
+        <p>Welcome back,</p>
+        <p>Hi, Chaitanya! 👋</p>
+      </div>
+    </div>
+    <nav class="sidebar-nav">
+      <p class="sidebar-section-label">Main Menu</p>
+      <a href="index.html"       class="sidebar-link active"><span class="icon">📊</span> Overview</a>
+      <a href="inventory.html"   class="sidebar-link"><span class="icon">📦</span> Inventory Tracker</a>
+      <a href="sales.html"       class="sidebar-link"><span class="icon">📈</span> Sales Analytics</a>
+      <a href="ai-insights.html" class="sidebar-link"><span class="icon">🤖</span> AI Insights</a>
+      <p class="sidebar-section-label">Alerts</p>
+      <a href="#" class="sidebar-link">
+        <span class="icon">💬</span> WhatsApp Alerts
+        <span class="sidebar-badge">3</span>
+      </a>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="status-dot"></div>
+      <p>System Online</p>
+    </div>
+  </aside>
+
+  <!-- ===== CHAT MAIN ===== -->
+  <main class="chat-main">
+
+    <!-- Topbar -->
+    <div class="topbar">
+      <div><h2>AI Insights</h2><p>Ask anything about your store — powered by Gemini AI</p></div>
+      <div style="display:flex;align-items:center;gap:8px;">
+        <div class="status-dot" style="animation:pulse 2s infinite"></div>
+        <span style="color:#059669;font-size:12px;font-weight:600;">Gemini AI Active</span>
+      </div>
+    </div>
+</div>
+
+    <!-- Chat Area -->
+    <div id="chatArea" class="chat-area">
+      <!-- Welcome message -->
+      <div class="chat-bubble">
+        <div class="bubble-row">
+          <div class="bubble-avatar ai">🤖</div>
+          <div class="bubble-content">
+            <p class="bubble-name">Dukaandaari AI</p>
+            <p class="bubble-text">Namaste Rahul! 👋 I'm your store assistant. Ask me anything about your inventory, sales, or business. Try one of the suggestions below!</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Suggestions -->
+    <div class="suggestions-wrap">
+      <p class="suggestions-label">💡 Try asking:</p>
+      <div class="suggestions-list">
+        <button class="suggestion-chip" onclick="askSuggestion('What are my top selling products?')">What are my top selling products?</button>
+        <button class="suggestion-chip" onclick="askSuggestion('Which items should I reorder today?')">Which items should I reorder today?</button>
+        <button class="suggestion-chip" onclick="askSuggestion('What is my best day for sales?')">What is my best day for sales?</button>
+        <button class="suggestion-chip" onclick="askSuggestion('How can I reduce waste?')">How can I reduce waste?</button>
+        <button class="suggestion-chip" onclick="askSuggestion('Give me a weekly business summary')">Give me a weekly business summary</button>
+      </div>
+    </div>
+
+    <!-- Input -->
+    <div class="chat-input-wrap">
+      <div class="chat-input-box">
+        <input id="userInput" type="text" class="chat-input" placeholder="Ask anything about your store..."/>
+        <button class="btn btn-cyan" onclick="sendMessage()">Send →</button>
+      </div>
+      <p class="chat-footer-note">Powered by Google Gemini AI · Your store data stays private</p>
+    </div>
+
+  </main>
+
+  <script src="JS/ai.js"></script>
+
+  <script>
+    // Auth guard — redirect to login if not signed in
+    if (!sessionStorage.getItem("loggedIn")) {
+      window.location.href = "login.html";
+    }
+  </script>
+  <script>
+    // Prevent full page reload on sidebar navigation
+    document.querySelectorAll('.sidebar-link').forEach(link => {
+      link.addEventListener('click', function(e) {
+        const href = this.getAttribute('href');
+        if (!href || href === '#') return;
+        e.preventDefault();
+        window.location.assign(href);
+      });
+    });
+  </script>
+</body>
+</html>
