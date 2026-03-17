@@ -58,28 +58,52 @@ Store Data:
 Reply in 3 to 5 lines max. Be friendly. Call owner Chaitanya sometimes. Use Rs for currency.`;
 
   try {
-    const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`,
-      {
-        method:  "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          contents: [{
-            parts: [{ text: STORE_CONTEXT + "\n\nUser question: " + message }]
-          }],
-          generationConfig: { temperature: 0.7, maxOutputTokens: 300 }
-        })
+    // Try models in order until one works
+    const models = [
+      "gemini-2.0-flash",
+      "gemini-2.0-flash-lite",
+      "gemini-1.5-flash-8b",
+      "gemini-1.5-pro",
+      "gemini-pro",
+    ];
+
+    let reply = null;
+    let lastError = "";
+
+    for (const model of models) {
+      try {
+        const response = await fetch(
+          `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${GEMINI_API_KEY}`,
+          {
+            method:  "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              contents: [{
+                parts: [{ text: STORE_CONTEXT + "\n\nUser question: " + message }]
+              }],
+              generationConfig: { temperature: 0.7, maxOutputTokens: 300 }
+            })
+          }
+        );
+        const data = await response.json();
+        if (data.error) {
+          lastError = data.error.message;
+          console.log(`  ❌ ${model} failed: ${data.error.message}`);
+          continue;
+        }
+        reply = data.candidates[0].content.parts[0].text;
+        console.log(`  ✅ ${model} worked!`);
+        break;
+      } catch (e) {
+        lastError = e.message;
+        console.log(`  ❌ ${model} threw: ${e.message}`);
       }
-    );
-
-    const data = await response.json();
-
-    if (data.error) {
-      console.error("Gemini error:", data.error.message);
-      return res.status(400).json({ error: data.error.message });
     }
 
-    const reply = data.candidates[0].content.parts[0].text;
+    if (!reply) {
+      return res.status(400).json({ error: "All models failed. Last error: " + lastError });
+    }
+
     console.log(`🤖 Gemini replied`);
     res.json({ reply });
 
