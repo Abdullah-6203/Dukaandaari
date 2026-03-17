@@ -13,18 +13,12 @@
   <!-- ===== SIDEBAR ===== -->
   <aside class="sidebar">
     <div class="sidebar-logo">
-      <img
-        src="high-res-omg.png"
-        alt="Dukaandaari"
-        style="width: 170px; height:auto; object-fit:contain; border-radius:2px; position: relative; left: 10px;"
-      />
+      <div class="sidebar-logo-icon">🏪</div>
+      <div><h1>Dukaandaari</h1><p>Smart Retail</p></div>
     </div>
     <div class="sidebar-user">
-      <div class="sidebar-avatar">C</div>
-      <div>
-        <p>Welcome back,</p>
-        <p>Hi, Chaitanya! 👋</p>
-      </div>
+      <div class="sidebar-avatar">R</div>
+      <div><p>Welcome back,</p><p>Hi, Chaitanya! 👋</p></div>
     </div>
     <nav class="sidebar-nav">
       <p class="sidebar-section-label">Main Menu</p>
@@ -35,7 +29,15 @@
       <p class="sidebar-section-label">Alerts</p>
       <a href="#" class="sidebar-link"><span class="icon">💬</span> WhatsApp Alerts<span class="sidebar-badge">3</span></a>
     </nav>
-    <div class="sidebar-footer"><div class="status-dot"></div><p>System Online</p></div>
+    <div class="sidebar-footer">
+      <div class="status-dot"></div>
+      <p>System Online</p>
+    </div>
+    <div style="padding:12px 24px;border-top:1px solid #374151;">
+      <button onclick="toggleLanguage()" style="background:none;border:1px solid #374151;color:#9ca3af;font-size:11px;font-weight:600;padding:5px 12px;border-radius:8px;cursor:pointer;font-family:Inter,sans-serif;width:100%;">
+        🌐 हिंदी / English
+      </button>
+    </div>
   </aside>
 
   <!-- ===== CHAT MAIN ===== -->
@@ -95,6 +97,60 @@
     if (!sessionStorage.getItem("loggedIn")) {
       window.location.href = "login.html";
     }
+  </script>
+  <script src="JS/translations.js"></script>
+  <script>
+    // Apply Hindi if set
+    if (typeof getLang === "function" && getLang() === "hi") {
+      document.querySelectorAll(".sidebar-user p:last-child").forEach(el => el.textContent = "नमस्ते, Chaitanya! 👋");
+      document.querySelectorAll(".sidebar-user p:first-child").forEach(el => el.textContent = "वापसी पर स्वागत,");
+      document.querySelectorAll(".sidebar-footer p").forEach(el => el.textContent = "सिस्टम ऑनलाइन");
+    }
+  </script>
+  <script>
+    function applyLangAI() {
+      if (typeof getLang !== "function" || getLang() !== "hi") return;
+
+      function setText(sel, text) { const el = document.querySelector(sel); if (el) el.textContent = text; }
+
+      // Sidebar
+      setText(".sidebar-user div p:first-child", "वापसी पर स्वागत,");
+      setText(".sidebar-user div p:last-child",  "नमस्ते, Chaitanya! 👋");
+      setText(".sidebar-footer p",               "सिस्टम ऑनलाइन");
+
+      // Topbar
+      setText(".topbar h2", "AI अंतर्दृष्टि");
+      setText(".topbar p",  "अपनी दुकान के बारे में कुछ भी पूछें");
+
+      // Chat input
+      const input = document.getElementById("userInput");
+      if (input) input.placeholder = "अपनी दुकान के बारे में कुछ भी पूछें...";
+
+      // Send button
+      document.querySelector(".chat-input-box .btn-cyan").textContent = "भेजें →";
+
+      // Footer note
+      setText(".chat-footer-note", "Google Gemini AI द्वारा संचालित · आपका डेटा सुरक्षित है");
+
+      // Suggestions label
+      setText(".suggestions-label", "💡 पूछकर देखें:");
+
+      // Suggestion chips
+      const chips = document.querySelectorAll(".suggestion-chip");
+      const chipTexts = [
+        "मेरे सबसे ज्यादा बिकने वाले उत्पाद?",
+        "आज क्या ऑर्डर करना चाहिए?",
+        "बिक्री का सबसे अच्छा दिन?",
+        "खर्च कैसे कम करें?",
+        "साप्ताहिक रिपोर्ट दें",
+      ];
+      chips.forEach((chip, i) => { if (chipTexts[i]) chip.textContent = chipTexts[i]; });
+
+      // Welcome message
+      const welcomeText = document.querySelector(".bubble-text");
+      if (welcomeText) welcomeText.textContent = "नमस्ते Chaitanya! 👋 मैं आपका स्टोर असिस्टेंट हूं। अपनी इन्वेंटरी, बिक्री या बिज़नेस के बारे में कुछ भी पूछें!";
+    }
+    applyLangAI();
   </script>
 </body>
 </html>

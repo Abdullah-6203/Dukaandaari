@@ -14,18 +14,12 @@
   <!-- ===== SIDEBAR ===== -->
   <aside class="sidebar">
     <div class="sidebar-logo">
-      <img
-        src="high-res-omg.png"
-        alt="Dukaandaari"
-        style="width: 170px; height:auto; object-fit:contain; border-radius:2px; position: relative; left: 10px;"
-      />
+      <div class="sidebar-logo-icon">🏪</div>
+      <div><h1>Dukaandaari</h1><p>Smart Retail</p></div>
     </div>
     <div class="sidebar-user">
-      <div class="sidebar-avatar">C</div>
-      <div>
-        <p>Welcome back,</p>
-        <p>Hi, Chaitanya! 👋</p>
-      </div>
+      <div class="sidebar-avatar">R</div>
+      <div><p>Welcome back,</p><p>Hi, Chaitanya! 👋</p></div>
     </div>
     <nav class="sidebar-nav">
       <p class="sidebar-section-label">Main Menu</p>
@@ -36,7 +30,15 @@
       <p class="sidebar-section-label">Alerts</p>
       <a href="#" class="sidebar-link"><span class="icon">💬</span> WhatsApp Alerts<span class="sidebar-badge">3</span></a>
     </nav>
-    <div class="sidebar-footer"><div class="status-dot"></div><p>System Online</p></div>
+    <div class="sidebar-footer">
+      <div class="status-dot"></div>
+      <p>System Online</p>
+    </div>
+    <div style="padding:12px 24px;border-top:1px solid #374151;">
+      <button onclick="toggleLanguage()" style="background:none;border:1px solid #374151;color:#9ca3af;font-size:11px;font-weight:600;padding:5px 12px;border-radius:8px;cursor:pointer;font-family:Inter,sans-serif;width:100%;">
+        🌐 हिंदी / English
+      </button>
+    </div>
   </aside>
 
   <!-- ===== MAIN ===== -->
@@ -243,9 +245,64 @@
   </script>
 
   <script>
+    function applyLangSales() {
+      if (typeof getLang !== "function" || getLang() !== "hi") return;
+
+      function setText(sel, text) { const el = document.querySelector(sel); if (el) el.textContent = text; }
+
+      // Sidebar
+      setText(".sidebar-user div p:first-child", "वापसी पर स्वागत,");
+      setText(".sidebar-user div p:last-child",  "नमस्ते, Chaitanya! 👋");
+      setText(".sidebar-footer p",               "सिस्टम ऑनलाइन");
+
+      // Topbar
+      setText(".topbar h2", "बिक्री विश्लेषण");
+      setText(".topbar p",  "अपनी आय और बिक्री ट्रैक करें");
+
+      // Range buttons
+      document.getElementById("btn-week").textContent  = "इस सप्ताह";
+      document.getElementById("btn-month").textContent = "इस महीने";
+
+      // KPI cards
+      const kpiLabels = ["कुल आय", "कुल ऑर्डर", "औसत ऑर्डर मूल्य", "सबसे अच्छा दिन"];
+      document.querySelectorAll(".stat-card-header p").forEach((el,i) => { if(kpiLabels[i]) el.textContent = kpiLabels[i]; });
+
+      // Card titles
+      const titleMap = {
+        "Revenue Trend":         "आय का रुझान",
+        "Daily sales performance": "दैनिक बिक्री प्रदर्शन",
+        "Peak Hours":            "व्यस्त समय",
+        "Busiest times of the day": "दिन के सबसे व्यस्त घंटे",
+        "Top 5 Products":        "शीर्ष 5 उत्पाद",
+        "By revenue this week":  "इस सप्ताह की आय के अनुसार",
+        "Sales by Category":     "श्रेणी अनुसार बिक्री",
+        "Revenue breakdown per category": "श्रेणी के अनुसार आय",
+      };
+      document.querySelectorAll(".card-title, .card-subtitle").forEach(el => {
+        if (titleMap[el.textContent.trim()]) el.textContent = titleMap[el.textContent.trim()];
+      });
+
+      // Chart legends
+      document.querySelectorAll(".chart-legend-text").forEach((el,i) => {
+        el.textContent = i === 0 ? "यह अवधि" : "पिछली अवधि";
+      });
+    }
+    applyLangSales();
+  </script>
+
+  <script>
     // Auth guard — redirect to login if not signed in
     if (!sessionStorage.getItem("loggedIn")) {
       window.location.href = "login.html";
+    }
+  </script>
+  <script src="JS/translations.js"></script>
+  <script>
+    // Apply Hindi if set
+    if (typeof getLang === "function" && getLang() === "hi") {
+      document.querySelectorAll(".sidebar-user p:last-child").forEach(el => el.textContent = "नमस्ते, Chaitanya! 👋");
+      document.querySelectorAll(".sidebar-user p:first-child").forEach(el => el.textContent = "वापसी पर स्वागत,");
+      document.querySelectorAll(".sidebar-footer p").forEach(el => el.textContent = "सिस्टम ऑनलाइन");
     }
   </script>
 </body>

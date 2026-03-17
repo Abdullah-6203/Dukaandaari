@@ -14,18 +14,12 @@
   <!-- SIDEBAR -->
   <aside class="sidebar">
     <div class="sidebar-logo">
-      <img
-        src="high-res-omg.png"
-        alt="Dukaandaari"
-        style="width: 170px; height:auto; object-fit:contain; border-radius:2px; position: relative; left: 10px;"
-      />
+      <div class="sidebar-logo-icon">🏪</div>
+      <div><h1>Dukaandaari</h1><p>Smart Retail</p></div>
     </div>
     <div class="sidebar-user">
-      <div class="sidebar-avatar">C</div>
-      <div>
-        <p>Welcome back,</p>
-        <p>Hi, Chaitanya! 👋</p>
-      </div>
+      <div class="sidebar-avatar">R</div>
+      <div><p>Welcome back,</p><p>Hi, Chaitanya! 👋</p></div>
     </div>
     <nav class="sidebar-nav">
       <p class="sidebar-section-label">Main Menu</p>
@@ -36,7 +30,15 @@
       <p class="sidebar-section-label">Alerts</p>
       <a href="#" class="sidebar-link"><span class="icon">💬</span> WhatsApp Alerts<span class="sidebar-badge">3</span></a>
     </nav>
-    <div class="sidebar-footer"><div class="status-dot"></div><p>System Online</p></div>
+    <div class="sidebar-footer">
+      <div class="status-dot"></div>
+      <p>System Online</p>
+    </div>
+    <div style="padding:12px 24px;border-top:1px solid #374151;">
+      <button onclick="toggleLanguage()" style="background:none;border:1px solid #374151;color:#9ca3af;font-size:11px;font-weight:600;padding:5px 12px;border-radius:8px;cursor:pointer;font-family:Inter,sans-serif;width:100%;">
+        🌐 हिंदी / English
+      </button>
+    </div>
   </aside>
 
   <!-- MAIN -->
@@ -303,6 +305,65 @@
     if (!sessionStorage.getItem("loggedIn")) {
       window.location.href = "login.html";
     }
+  </script>
+  <script src="JS/translations.js"></script>
+  <script>
+    // Apply Hindi if set
+    if (typeof getLang === "function" && getLang() === "hi") {
+      document.querySelectorAll(".sidebar-user p:last-child").forEach(el => el.textContent = "नमस्ते, Chaitanya! 👋");
+      document.querySelectorAll(".sidebar-user p:first-child").forEach(el => el.textContent = "वापसी पर स्वागत,");
+      document.querySelectorAll(".sidebar-footer p").forEach(el => el.textContent = "सिस्टम ऑनलाइन");
+    }
+  </script>
+  <script>
+    function applyLangInventory() {
+      if (typeof getLang !== "function" || getLang() !== "hi") return;
+
+      function setText(sel, text) { const el = document.querySelector(sel); if (el) el.textContent = text; }
+
+      // Sidebar
+      setText(".sidebar-user div p:first-child", "वापसी पर स्वागत,");
+      setText(".sidebar-user div p:last-child",  "नमस्ते, Chaitanya! 👋");
+      setText(".sidebar-footer p",               "सिस्टम ऑनलाइन");
+
+      // Topbar
+      setText(".topbar h2", "इन्वेंटरी ट्रैकर");
+      setText(".topbar p",  "अपने स्टॉक को मैनेज करें");
+      document.getElementById("openModalBtn").textContent = "+ उत्पाद जोड़ें";
+
+      // Stat cards
+      const labels = ["कुल आइटम", "स्टॉक में", "कम स्टॉक", "क्रिटिकल"];
+      document.querySelectorAll(".stat-card-header p").forEach((el,i) => { if(labels[i]) el.textContent = labels[i]; });
+
+      // Filter bar
+      const searchInput = document.getElementById("searchInput");
+      if (searchInput) searchInput.placeholder = "उत्पाद खोजें...";
+
+      // Table headers
+      const thMap = { "Product":"उत्पाद", "Category":"श्रेणी", "Stock":"स्टॉक", "Price":"कीमत", "Status":"स्थिति", "Action":"कार्य" };
+      document.querySelectorAll(".data-table th").forEach(th => { if(thMap[th.textContent]) th.textContent = thMap[th.textContent]; });
+
+      // Status filter options
+      const statusFilter = document.getElementById("statusFilter");
+      if (statusFilter) {
+        statusFilter.options[0].text = "सभी स्थिति";
+        statusFilter.options[1].text = "स्टॉक में";
+        statusFilter.options[2].text = "कम स्टॉक";
+        statusFilter.options[3].text = "क्रिटिकल";
+      }
+
+      // Category filter
+      const catFilter = document.getElementById("categoryFilter");
+      if (catFilter) catFilter.options[0].text = "सभी श्रेणियां";
+
+      // Modal
+      const modal = document.querySelector(".modal-header h3");
+      if (modal) modal.textContent = "नया उत्पाद जोड़ें";
+
+      // Language button
+      document.querySelector("button[onclick*='toggleLanguage']") && (document.querySelector("button[onclick*='toggleLanguage']").textContent = "🌐 English");
+    }
+    applyLangInventory();
   </script>
 </body>
 </html>
