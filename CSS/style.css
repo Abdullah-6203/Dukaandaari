@@ -64,6 +64,10 @@ body {
   margin-top: 2px;
 }
 
+.sidebar-logo img:hover{
+  cursor: pointer;
+}
+
 .sidebar-user {
   padding: 16px 24px;
   border-bottom: 1px solid #374151;
