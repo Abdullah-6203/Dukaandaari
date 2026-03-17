@@ -113,26 +113,39 @@ function showStep(index) {
   const target = document.getElementById(step.targetId);
   if (!target) { nextStep(); return; }
 
+  // Scroll target into view first
   target.scrollIntoView({ behavior: "smooth", block: "center" });
 
+  // Give more time for elements further down the page to scroll into view
+  // Udhaar (step 3) and below need extra time
+  const delay = index >= 3 ? 800 : 350;
+
   setTimeout(() => {
+    // Re-fetch rect AFTER scroll completes
     const rect = target.getBoundingClientRect();
     const pad  = 10;
 
+    // If element is off screen even after scroll, force instant scroll
+    if (rect.top < 0 || rect.bottom > window.innerHeight) {
+      target.scrollIntoView({ behavior: "instant", block: "center" });
+    }
+
+    const freshRect = target.getBoundingClientRect();
+
     // Spotlight
     const spot = document.getElementById("tourSpotlight");
-    spot.style.left   = (rect.left   - pad) + "px";
-    spot.style.top    = (rect.top    - pad) + "px";
-    spot.style.width  = (rect.width  + pad * 2) + "px";
-    spot.style.height = (rect.height + pad * 2) + "px";
+    spot.style.left   = (freshRect.left   - pad) + "px";
+    spot.style.top    = (freshRect.top    - pad) + "px";
+    spot.style.width  = (freshRect.width  + pad * 2) + "px";
+    spot.style.height = (freshRect.height + pad * 2) + "px";
 
     // Content
     const isLast = index === tutorialSteps.length - 1;
-    document.getElementById("tourBadge").textContent = (isHindi ? "चरण " : "Step ") + (index + 1) + " / " + tutorialSteps.length;
-    document.getElementById("tourTitle").textContent = isHindi ? step.titleHi : step.title;
-    document.getElementById("tourText").textContent  = isHindi ? step.textHi  : step.text;
-    document.getElementById("tourSkipBtn").textContent = isHindi ? "छोड़ें" : "Skip";
-    document.getElementById("tourNextBtn").textContent = isLast ? (isHindi ? "✓ शुरू करें" : "✓ Get Started") : (isHindi ? "अगला →" : "Next →");
+    document.getElementById("tourBadge").textContent    = (isHindi ? "चरण " : "Step ") + (index + 1) + " / " + tutorialSteps.length;
+    document.getElementById("tourTitle").textContent    = isHindi ? step.titleHi : step.title;
+    document.getElementById("tourText").textContent     = isHindi ? step.textHi  : step.text;
+    document.getElementById("tourSkipBtn").textContent  = isHindi ? "छोड़ें" : "Skip";
+    document.getElementById("tourNextBtn").textContent  = isLast ? (isHindi ? "✓ शुरू करें" : "✓ Get Started") : (isHindi ? "अगला →" : "Next →");
 
     // Dots
     document.getElementById("tourDots").innerHTML = tutorialSteps.map((_, i) =>
@@ -140,18 +153,20 @@ function showStep(index) {
     ).join("");
 
     // Position tooltip
-    const tipW = 300, tipH = 200, margin = 18;
+    const tipW = 300, tipH = 210, margin = 18;
     let tipLeft, tipTop;
 
     if (step.position === "right") {
-      tipLeft = rect.right + margin;
-      tipTop  = rect.top + (rect.height / 2) - (tipH / 2);
+      tipLeft = freshRect.right + margin;
+      tipTop  = freshRect.top + (freshRect.height / 2) - (tipH / 2);
     } else if (step.position === "bottom") {
-      tipLeft = rect.left + (rect.width / 2) - (tipW / 2);
-      tipTop  = rect.bottom + margin + pad;
+      tipLeft = freshRect.left + (freshRect.width / 2) - (tipW / 2);
+      tipTop  = freshRect.bottom + margin + pad;
     } else {
-      tipLeft = rect.left + (rect.width / 2) - (tipW / 2);
-      tipTop  = rect.top - tipH - margin;
+      // "top" — show tooltip above, but if not enough space show below
+      tipTop = freshRect.top - tipH - margin;
+      if (tipTop < 16) tipTop = freshRect.bottom + margin;
+      tipLeft = freshRect.left + (freshRect.width / 2) - (tipW / 2);
     }
 
     // Keep inside viewport
@@ -161,7 +176,8 @@ function showStep(index) {
     const tip = document.getElementById("tourTooltip");
     tip.style.left = tipLeft + "px";
     tip.style.top  = tipTop  + "px";
-  }, 300);
+
+  }, delay);
 }
 
 function nextStep() {
