@@ -1182,6 +1182,75 @@
     window.dashboardState  = dashboardState;
     window.saveAllState    = saveAllState;
 
+    // =============================================
+    // ===== HINDI TRANSLATION =====
+    // =============================================
+    function applyLang() {
+      if (typeof getLang !== "function") return;
+      if (getLang() !== "hi") return;
+
+      // Helper to safely set text
+      function setText(selector, text) {
+        const el = document.querySelector(selector);
+        if (el) el.textContent = text;
+      }
+      function setAll(selector, text) {
+        document.querySelectorAll(selector).forEach(el => el.textContent = text);
+      }
+
+      // Sidebar
+      setText(".sidebar-user div p:first-child",  "वापसी पर स्वागत,");
+      setText(".sidebar-user div p:last-child",    "नमस्ते, Chaitanya! 👋");
+      setText(".sidebar-footer p",                 "सिस्टम ऑनलाइन");
+
+      // Topbar
+      setText(".topbar h2",  "अवलोकन");
+      setText(".topbar > div > p", "सोमवार, 16 मार्च 2026");
+      document.getElementById("openSellBtn").textContent        = "🛒 बेचें";
+      document.querySelector("button[onclick*='sendWhatsAppAlert']").textContent = "💬 WhatsApp अलर्ट";
+      document.querySelector("button[onclick*='toggleLanguage']").textContent   = "🌐 English";
+
+      // Stat card labels
+      const statHeaders = document.querySelectorAll(".stat-card-header p");
+      const statLabels  = ["कुल उत्पाद", "कम स्टॉक आइटम", "आज की बिक्री", "मासिक आय"];
+      statHeaders.forEach((el, i) => { if (statLabels[i]) el.textContent = statLabels[i]; });
+
+      // Card titles
+      const titleMap = {
+        "Weekly Sales Performance":  "साप्ताहिक बिक्री प्रदर्शन",
+        "Last 7 days revenue breakdown": "पिछले 7 दिनों का राजस्व",
+        "Inventory Status":          "इन्वेंटरी स्थिति",
+        "Items needing attention":   "ध्यान देने योग्य वस्तुएं",
+        "Top Selling Categories":    "शीर्ष बिकने वाली श्रेणियां",
+        "Revenue share by category": "श्रेणी अनुसार राजस्व",
+        "📒 Udhaar Khata":           "📒 उधार खाता",
+        "AI Insight of the Day":     "आज की AI सलाह",
+        "🧾 Today's Sales Log":      "🧾 आज की बिक्री",
+        "All transactions recorded today": "आज की सभी लेनदेन",
+      };
+      document.querySelectorAll(".card-title, .card-subtitle, .ai-banner-title").forEach(el => {
+        if (titleMap[el.textContent.trim()]) el.textContent = titleMap[el.textContent.trim()];
+      });
+
+      // Udhaar section
+      const sumLabels = document.querySelectorAll(".udhaar-sum-label");
+      if (sumLabels[0]) sumLabels[0].textContent = "कुल बकाया";
+      if (sumLabels[1]) sumLabels[1].textContent = "उधार वाले लोग";
+      if (sumLabels[2]) sumLabels[2].textContent = "डिफॉल्टर";
+
+      // Table headers
+      const thMap = { "Product":"उत्पाद", "Stock":"स्टॉक", "Status":"स्थिति" };
+      document.querySelectorAll(".data-table th").forEach(th => {
+        if (thMap[th.textContent]) th.textContent = thMap[th.textContent];
+      });
+
+      // AI banner
+      setText(".ai-banner-text", '"पार्ले-जी और अमूल बटर का स्टॉक खत्म होने वाला है। अभी ऑर्डर करें।"');
+      setText(".ai-banner + a, .btn-cyan[href*=ai]", "AI से पूछें →");
+    }
+
+    applyLang();
+
   </script>
 
 </body>
