@@ -11,9 +11,9 @@ const fetch   = (...args) => import("node-fetch").then(({ default: f }) => f(...
 // ---- YOUR CREDENTIALS — FILL THESE IN ----
 // =============================================
 
-const GEMINI_API_KEY = "AIzaSyDSbTY4T83-C9ypYCi_c-IOyn_H4U3s4UE";  // Paste your Gemini key here
-const TWILIO_SID     = "ACf4761d7eee955e914e4707d217ef8a62";  // Your Twilio SID
-const TWILIO_AUTH    = "a9d7747c39a3711cfc9970650d3779f4";  // Paste your Twilio Auth Token here
+const GEMINI_API_KEY = "";  // Paste your Gemini key here
+const TWILIO_SID     = "";  // Your Twilio SID
+const TWILIO_AUTH    = "";  // Paste your Twilio Auth Token here
 const TWILIO_WA_TO   = "whatsapp:+919911992858";  // Your WhatsApp number
 
 // =============================================
